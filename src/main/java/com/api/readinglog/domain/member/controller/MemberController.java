@@ -1,6 +1,9 @@
 package com.api.readinglog.domain.member.controller;
 
+import com.api.readinglog.common.exception.ErrorCode;
+import com.api.readinglog.common.exception.custom.MemberException;
 import com.api.readinglog.common.response.Response;
+import com.api.readinglog.domain.member.entity.Member;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -26,5 +29,15 @@ public class MemberController {
         members.add("member1");
 
         return Response.success(HttpStatus.OK, "회원 목록 조회 성공!", members);
+    }
+
+    @GetMapping("/api-test3")
+    public Response<List<Member>> testApi03() {
+        throw new MemberException(ErrorCode.NOT_FOUND_MEMBER);
+    }
+
+    @GetMapping("/api-test4")
+    public Response<List<Member>> testApi04() {
+        throw new RuntimeException("런타임 예외");
     }
 }
