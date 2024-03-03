@@ -1,4 +1,4 @@
-package com.api.readinglog.domain.entity;
+package com.api.readinglog.domain.member.entity;
 
 import com.api.readinglog.common.base.BaseTimeEntity;
 import jakarta.persistence.Column;

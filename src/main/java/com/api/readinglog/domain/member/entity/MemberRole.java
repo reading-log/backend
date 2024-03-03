@@ -1,4 +1,4 @@
-package com.api.readinglog.domain.entity;
+package com.api.readinglog.domain.member.entity;
 
 import lombok.Getter;
 

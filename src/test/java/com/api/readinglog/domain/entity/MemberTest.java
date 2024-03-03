@@ -1,8 +1,8 @@
 package com.api.readinglog.domain.entity;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.api.readinglog.domain.repository.MemberRepository;
+import com.api.readinglog.domain.member.entity.Member;
+import com.api.readinglog.domain.member.entity.MemberRole;
+import com.api.readinglog.domain.member.repository.MemberRepository;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
