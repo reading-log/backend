@@ -1,6 +1,5 @@
 package com.api.readinglog.common.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,11 +26,9 @@ public class Response<T> {
         return new Response<>(code.value(), message, data);
     }
 
+    // 응답 실패
     public static Response<Void> error(HttpStatus code, String message) {
         return new Response<>(code.value(), message, null);
     }
 
-    public static <T> Response<T> error(HttpStatus code, T data) {
-        return new Response<>(code.value(), null, data);
-    }
 }
