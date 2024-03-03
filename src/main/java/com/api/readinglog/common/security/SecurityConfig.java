@@ -16,27 +16,23 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
 @EnableWebSecurity
 public class SecurityConfig {
 
-  @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    return http
-        .httpBasic(httpBasic -> httpBasic.disable())
-        .csrf(csrf -> csrf.disable())
-        .cors(cors -> cors.disable())
-        .formLogin(formLogin -> formLogin.disable())
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/**").permitAll()
-        )
-        .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-        .logout(logout -> logout.logoutSuccessUrl("/api/members/logout"))
-        .build();
-        //.oauth2Login(oauth2 -> oauth2.loginPage()) TODO: implement social login
-        //.addFilterBefore(, UsernamePasswordAuthenticationFilter.class) TODO: implement JWT
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.disable())
+                .formLogin(formLogin -> formLogin.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/**").permitAll()
+                )
+                .headers((headers) -> headers
+                        .addHeaderWriter(new XFrameOptionsHeaderWriter(
+                                XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+                .logout(logout -> logout.logoutSuccessUrl("/api/members/logout"))
+                .build();
 
-  }
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-  }
-
+    }
 }
