@@ -1,6 +1,7 @@
 package com.api.readinglog.domain.member.entity;
 
 import com.api.readinglog.common.base.BaseTimeEntity;
+import com.api.readinglog.domain.member.controller.dto.JoinRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -33,6 +34,9 @@ public class Member extends BaseTimeEntity {
     @Column(name = "member_nickname")
     private String nickname;
 
+    @Column(name = "member_password")
+    private String password;
+
     @Column(name = "member_profile_img")
     private String profileImg;
 
@@ -41,9 +45,10 @@ public class Member extends BaseTimeEntity {
     private MemberRole role;
 
     @Builder
-    private Member(String email, String nickname, String profileImg, MemberRole role) {
+    private Member(String email, String nickname, String password, String profileImg, MemberRole role) {
         this.email = email;
         this.nickname = nickname;
+        this.password = password;
         this.profileImg = profileImg;
         this.role = role;
     }
@@ -56,4 +61,15 @@ public class Member extends BaseTimeEntity {
                 .role(role)
                 .build();
     }
+
+    public static Member of(JoinRequest request, String password) {
+        return Member.builder()
+                .email(request.getEmail())
+                .nickname(request.getNickName())
+                .password(password)
+                .profileImg(request.getProfileImage().getOriginalFilename())
+                .role(MemberRole.MEMBER)
+                .build();
+    }
+
 }
