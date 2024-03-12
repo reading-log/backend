@@ -4,6 +4,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 import com.api.readinglog.common.jwt.JwtAuthenticationFilter;
 import com.api.readinglog.common.jwt.JwtTokenProvider;
+import com.api.readinglog.common.oauth.CustomOAuth2UserService;
+import com.api.readinglog.common.oauth.OAuthSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +24,8 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuthSuccessHandler oAuthSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -30,6 +34,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.disable())
                 .formLogin(formLogin -> formLogin.disable())
+                .oauth2Login(oauth -> oauth.userInfoEndpoint(
+                        userInfoEndpoint -> userInfoEndpoint.userService(customOAuth2UserService)
+                ).successHandler(oAuthSuccessHandler))
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/**").permitAll()
                 )
@@ -41,7 +49,6 @@ public class SecurityConfig {
                 .logout(logout -> logout.logoutSuccessUrl("/api/members/logout"))
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
                         UsernamePasswordAuthenticationFilter.class)
-
                 .build();
     }
 

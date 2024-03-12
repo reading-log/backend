@@ -21,7 +21,5 @@ spring:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type: TRACE
-    org.springframework.transaction: DEBUG
-    org.springframework.security: DEBUG
+    root: info
+    com.api.readinglog: DEBUG
