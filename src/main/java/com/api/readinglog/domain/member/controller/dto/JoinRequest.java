@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class JoinRequest {
 
     private String email;
-    private String nickName;
+    private String nickname;
     private String password;
     private String passwordConfirm;
     private MultipartFile profileImage;

@@ -65,11 +65,10 @@ public class Member extends BaseTimeEntity {
     public static Member of(JoinRequest request, String password) {
         return Member.builder()
                 .email(request.getEmail())
-                .nickname(request.getNickName())
+                .nickname(request.getNickname())
                 .password(password)
                 .profileImg(request.getProfileImage().getOriginalFilename())
                 .role(MemberRole.MEMBER)
                 .build();
     }
-
 }
