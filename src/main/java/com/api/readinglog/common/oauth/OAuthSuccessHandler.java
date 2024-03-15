@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Slf4j
 @Component
@@ -33,22 +32,17 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
         String email = oAuth2User.getAttribute("email");
-        Optional<Member> findMember = memberRepository.findByEmail(email);
+        String provider = oAuth2User.getAttribute("provider");
+        MemberRole memberRole = MemberRole.of(provider);
 
         String name = oAuth2User.getAttribute("name");
         String picture = oAuth2User.getAttribute("picture");
 
-        // 회원이 아닌 경우에 회원 가입 진행
-        Member member = null;
-        if (findMember.isEmpty()) {
-            member = Member.of(email, name, picture, MemberRole.MEMBER);
-            memberRepository.save(member);
-        } else { // 회원이 이미 존재하는 경우, 새로운 정보로 갱신
-            member = memberRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("존재하지 않은 회원입니다."));
-            member.updateProfile(name, picture);
-            memberRepository.save(member);
-        }
+        memberRepository.findByEmailAndRole(email, memberRole)
+                .map(existingMember -> {
+                    existingMember.updateProfile(name, picture);
+                    return existingMember;
+                }).orElseGet(() -> memberRepository.save(Member.of(email, name, picture, memberRole)));
 
         JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
 

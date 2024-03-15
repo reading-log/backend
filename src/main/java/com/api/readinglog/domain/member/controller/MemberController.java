@@ -6,8 +6,8 @@ import com.api.readinglog.domain.member.controller.dto.JoinRequest;
 import com.api.readinglog.domain.member.controller.dto.LoginRequest;
 import com.api.readinglog.domain.member.controller.dto.LoginResponse;
 import com.api.readinglog.domain.member.entity.Member;
+import com.api.readinglog.domain.member.entity.MemberRole;
 import com.api.readinglog.domain.member.service.MemberService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -39,10 +39,11 @@ public class MemberController {
         return Response.success(HttpStatus.OK, "로그인 성공!", LoginResponse.of(jwtToken));
     }
 
-    @GetMapping
-    public Response<Member> my(Authentication authentication) {
+    @GetMapping("/me")
+    public Response<Member> findMember(Authentication authentication) {
         String email = authentication.getName();
-        Member member = memberService.getMemberByEmail(email);
+        String roleName = authentication.getAuthorities().iterator().next().getAuthority();
+        Member member = memberService.getMemberByEmailAndRole(email, MemberRole.valueOf(roleName));
         return Response.success(HttpStatus.OK, "회원 조회 성공!", member);
     }
 

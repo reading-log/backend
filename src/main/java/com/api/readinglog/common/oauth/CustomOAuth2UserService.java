@@ -1,5 +1,6 @@
 package com.api.readinglog.common.oauth;
 
+import com.api.readinglog.domain.member.entity.MemberRole;
 import java.util.Collections;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -23,16 +24,16 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
-        log.debug("플랫폼 아이디: {}", registrationId);
+        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
+                .getUserNameAttributeName();
 
-        OAuth2Attribute oAuth2Attribute = OAuth2Attribute.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
-        log.debug("소셜 로그인 정보: {}", oAuth2Attribute);
+        OAuth2Attribute oAuth2Attribute = OAuth2Attribute.of(registrationId, userNameAttributeName,
+                oAuth2User.getAttributes());
 
         Map<String, Object> memberAttribute = oAuth2Attribute.convertToMap();
 
-        return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("ROLE_MEMBER")),
+        return new DefaultOAuth2User(
+                Collections.singleton(new SimpleGrantedAuthority(MemberRole.of(registrationId).name())),
                 memberAttribute, "email");
-
     }
 }
