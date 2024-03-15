@@ -31,4 +31,8 @@ public class Response<T> {
         return new Response<>(code.value(), message, null);
     }
 
+    public static<T> Response<T> error(HttpStatus code, String message, T data) {
+        return new Response<>(code.value(), message, data);
+    }
+
 }

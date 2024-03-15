@@ -1,5 +1,7 @@
 package com.api.readinglog.domain.member.service;
 
+import com.api.readinglog.common.exception.ErrorCode;
+import com.api.readinglog.common.exception.custom.MemberException;
 import com.api.readinglog.common.jwt.JwtToken;
 import com.api.readinglog.common.jwt.JwtTokenProvider;
 import com.api.readinglog.domain.member.controller.dto.JoinRequest;
@@ -29,18 +31,10 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     public void join(JoinRequest request) {
-        memberRepository.findByEmailAndRole(request.getEmail(), MemberRole.MEMBER_NORMAL).ifPresent(it -> {
-            throw new RuntimeException("이미 존재하는 회원입니다.");
-        });
+        validateExistingMember(request.getEmail(), request.getNickname());
+        validatePassword(request.getPassword(), request.getPasswordConfirm());
 
-        String password = request.getPassword();
-        String passwordConfirm = request.getPasswordConfirm();
-
-        if (!password.equals(passwordConfirm)) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
-        }
-
-        String encodedPassword = passwordEncoder.encode(password);
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
         Member member = Member.of(request, encodedPassword);
 
         /* TODO: 이미지 파일 S3에 업로드 로직 추가 예정 */
@@ -61,4 +55,21 @@ public class MemberService {
         return memberRepository.findByEmailAndRole(email, role)
                 .orElseThrow(() -> new UsernameNotFoundException("회원 정보가 없습니다."));
     }
+
+    private void validateExistingMember(String email, String nickname) {
+        if (memberRepository.findByEmailAndRole(email, MemberRole.MEMBER_NORMAL).isPresent()) {
+            throw new MemberException(ErrorCode.MEMBER_ALREADY_EXISTS);
+        }
+
+        if (memberRepository.findByNickname(nickname).isPresent()) {
+            throw new MemberException(ErrorCode.NICKNAME_ALREADY_EXISTS);
+        }
+    }
+
+    private void validatePassword(String password, String passwordConfirm) {
+        if (!password.equals(passwordConfirm)) {
+            throw new MemberException(ErrorCode.PASSWORD_MISMATCH);
+        }
+    }
+
 }
