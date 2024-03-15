@@ -5,8 +5,10 @@ import com.api.readinglog.common.jwt.JwtTokenProvider;
 import com.api.readinglog.domain.member.controller.dto.JoinRequest;
 import com.api.readinglog.domain.member.controller.dto.LoginRequest;
 import com.api.readinglog.domain.member.entity.Member;
+import com.api.readinglog.domain.member.entity.MemberRole;
 import com.api.readinglog.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class MemberService {
 
     private final MemberRepository memberRepository;
@@ -26,7 +29,7 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     public void join(JoinRequest request) {
-        memberRepository.findByEmail(request.getEmail()).ifPresent(it -> {
+        memberRepository.findByEmailAndRole(request.getEmail(), MemberRole.MEMBER_NORMAL).ifPresent(it -> {
             throw new RuntimeException("이미 존재하는 회원입니다.");
         });
 
@@ -40,7 +43,7 @@ public class MemberService {
         String encodedPassword = passwordEncoder.encode(password);
         Member member = Member.of(request, encodedPassword);
 
-        /* TODO: 이미지 파일 S3에 업로드*/
+        /* TODO: 이미지 파일 S3에 업로드 로직 추가 예정 */
 
         memberRepository.save(member);
     }
@@ -54,8 +57,8 @@ public class MemberService {
 
     }
 
-    public Member getMemberByEmail(String email) {
-        return memberRepository.findByEmail(email)
+    public Member getMemberByEmailAndRole(String email, MemberRole role) {
+        return memberRepository.findByEmailAndRole(email, role)
                 .orElseThrow(() -> new UsernameNotFoundException("회원 정보가 없습니다."));
     }
 }

@@ -20,7 +20,7 @@ class MemberTest {
     @Test
     @Transactional
     public void test() {
-        Member member = Member.of("test@test.com", "test", "test", MemberRole.MEMBER);
+        Member member = Member.of("test@test.com", "test", "test", MemberRole.MEMBER_NORMAL);
 
         Member saveMember = repository.save(member);
         repository.delete(saveMember);
