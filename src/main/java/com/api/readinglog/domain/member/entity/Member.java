@@ -68,7 +68,7 @@ public class Member extends BaseTimeEntity {
                 .nickname(request.getNickname())
                 .password(password)
                 .profileImg(request.getProfileImage().getOriginalFilename())
-                .role(MemberRole.MEMBER)
+                .role(MemberRole.MEMBER_NORMAL)
                 .build();
     }
 
