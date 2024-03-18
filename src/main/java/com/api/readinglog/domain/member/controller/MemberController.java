@@ -8,6 +8,7 @@ import com.api.readinglog.domain.member.controller.dto.LoginResponse;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.entity.MemberRole;
 import com.api.readinglog.domain.member.service.MemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/join")
-    public Response<Void> join(@ModelAttribute JoinRequest request) {
+    public Response<Void> join(@ModelAttribute @Valid JoinRequest request) {
         memberService.join(request);
         return Response.success(HttpStatus.CREATED, "회원 가입 완료");
     }
