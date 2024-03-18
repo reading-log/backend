@@ -1,5 +1,6 @@
 package com.api.readinglog.common.jwt;
 
+import com.api.readinglog.common.security.CustomUserDetail;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -39,11 +40,16 @@ public class JwtTokenProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+        // CustomUserDetail로 형변환 후 꺼내기
+        CustomUserDetail customUserDetail = (CustomUserDetail) authentication.getPrincipal();
+        log.debug("현재 로그인한 사용자의 id: {}", customUserDetail.getId());
+
         long now = (new Date()).getTime();
 
         Date accessTokenExpiresIn = new Date(now + 86400000);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
+                .claim("id", customUserDetail.getId()) // 클래임에 회원 id(pk) 저장
                 .claim("auth", authorities)
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -77,8 +83,9 @@ public class JwtTokenProvider {
 
         // UserDetails 객체를 만들어서 Authentication return
         // UserDetails: interface, User: UserDetails를 구현한 class
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        // CustomUserDetail 생성!!
+        CustomUserDetail userDetail = new CustomUserDetail(claims.getSubject(), "", Long.parseLong(String.valueOf(claims.get("id"))), authorities);
+        return new UsernamePasswordAuthenticationToken(userDetail, "", authorities);
     }
 
     public boolean validateToken(String token) {
