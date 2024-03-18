@@ -1,5 +1,7 @@
 package com.api.readinglog.domain.member.service;
 
+import com.api.readinglog.common.exception.ErrorCode;
+import com.api.readinglog.common.exception.custom.MemberException;
 import com.api.readinglog.common.jwt.JwtToken;
 import com.api.readinglog.common.jwt.JwtTokenProvider;
 import com.api.readinglog.domain.member.controller.dto.JoinRequest;
@@ -60,5 +62,9 @@ public class MemberService {
     public Member getMemberByEmailAndRole(String email, MemberRole role) {
         return memberRepository.findByEmailAndRole(email, role)
                 .orElseThrow(() -> new UsernameNotFoundException("회원 정보가 없습니다."));
+    }
+
+    public Member getMemberById(Long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.NOT_FOUND_MEMBER));
     }
 }
