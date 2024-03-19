@@ -57,6 +57,7 @@ public class Member extends BaseTimeEntity {
         return Member.builder()
                 .email(email)
                 .nickname(nickname)
+                .password("") // 소셜 회원은 비밀번호 X
                 .profileImg(profileImg)
                 .role(role)
                 .build();
