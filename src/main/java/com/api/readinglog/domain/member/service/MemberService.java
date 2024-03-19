@@ -91,5 +91,4 @@ public class MemberService {
             return amazonS3Service.uploadFile(profileImage);
         }
     }
-
 }
