@@ -26,7 +26,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
 
-        String targetUrl = UriComponentsBuilder.fromUriString("https://localhost:8080")
+        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:8080")
                 .queryParam("accessToken", jwtToken.getAccessToken())
                 .queryParam("refreshToken", jwtToken.getRefreshToken())
                 .build().toUriString();
