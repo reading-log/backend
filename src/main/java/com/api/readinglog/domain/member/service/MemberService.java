@@ -57,6 +57,10 @@ public class MemberService {
                 .orElseThrow(() -> new UsernameNotFoundException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
     }
 
+    public Member getMemberById(Long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.NOT_FOUND_MEMBER));
+    }
+
     private void validateExistingMember(String email, String nickname) {
         if (memberRepository.findByEmailAndRole(email, MemberRole.MEMBER_NORMAL).isPresent()) {
             throw new MemberException(ErrorCode.MEMBER_ALREADY_EXISTS);
