@@ -11,8 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,5 +49,12 @@ public class BookController {
         log.debug("request: {}", request);
         bookService.registerBookDirect(user.getId(), request);
         return Response.success(HttpStatus.CREATED, "책 등록 성공");
+    }
+
+    @DeleteMapping("/{bookId}")
+    public Response<Void> deleteBook(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long bookId) {
+        // TODO: 책이 삭제될 때 해당 책에 관한 기록, 포스트 함께 삭제?
+        bookService.deleteBook(user.getId(), bookId);
+        return Response.success(HttpStatus.OK, "%d번 책 삭제 성공".formatted(bookId));
     }
 }

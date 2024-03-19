@@ -2,6 +2,7 @@ package com.api.readinglog.domain.book.service;
 
 import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.BookException;
+import com.api.readinglog.common.exception.custom.MemberException;
 import com.api.readinglog.domain.book.dto.BookDirectRequest;
 import com.api.readinglog.domain.book.dto.BookRegisterRequest;
 import com.api.readinglog.domain.book.dto.BookSearchApiResponse;
@@ -74,5 +75,20 @@ public class BookService {
 
         // TODO: 커버 이미지 s3 업로드
         bookRepository.save(Book.of(member, request));
+    }
+
+    public void deleteBook(Long memberId, Long bookId) {
+        Member member = memberService.getMemberById(memberId);
+        Book book = getBookById(bookId);
+
+        if (book.getMember() != member) {
+            throw new BookException(ErrorCode.FORBIDDEN_DELETE);
+        }
+
+        bookRepository.delete(book);
+    }
+
+    private Book getBookById(Long bookId) {
+        return bookRepository.findById(bookId).orElseThrow(() -> new BookException(ErrorCode.NOT_FOUND_BOOK));
     }
 }
