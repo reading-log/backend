@@ -5,6 +5,7 @@ import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.MemberException;
 import com.api.readinglog.common.jwt.JwtToken;
 import com.api.readinglog.common.jwt.JwtTokenProvider;
+import com.api.readinglog.domain.member.controller.dto.request.DeleteRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
 import com.api.readinglog.domain.member.controller.dto.request.LoginRequest;
 import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequest;
@@ -86,6 +87,14 @@ public class MemberService {
             updatedFileName = amazonS3Service.uploadFile(request.getProfileImg());
         }
         member.updateProfile(request.getNickname(), updatedFileName);
+    }
+
+    public void deleteMember(Long memberId, DeleteRequest request) {
+        Member member = getMemberById(memberId);
+        if(!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
+            throw new MemberException(ErrorCode.PASSWORD_MISMATCH);
+        }
+        memberRepository.deleteById(memberId);
     }
 
     private void validateExistingMember(String email, String nickname) {
