@@ -63,6 +63,17 @@ public class MemberService {
         return memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.NOT_FOUND_MEMBER));
     }
 
+    public MemberDetailsResponse getMemberDetails(Long memberId) {
+        Member member = getMemberById(memberId);
+        String profileImg = member.getProfileImg();
+
+        // 소셜 로그인 한 회원이 아닌 경우에만 S3에서 이미지 객체 URL을 가져옴
+        if(member.getRole().equals(MemberRole.MEMBER_NORMAL)) {
+            profileImg = amazonS3Service.getFileUrl(member.getProfileImg());
+        }
+        return MemberDetailsResponse.of(member, profileImg);
+    }
+
     public void updateProfile(Long memberId, UpdateProfileRequest request) {
         Member member = getMemberById(memberId);
 
