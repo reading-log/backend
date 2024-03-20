@@ -1,6 +1,8 @@
 package com.api.readinglog.common.aws;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.api.readinglog.common.exception.ErrorCode;
@@ -24,20 +26,33 @@ public class AmazonS3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public String uploadFile(MultipartFile profileImage) {
-        String fileName = generateFileName(profileImage.getOriginalFilename());
+    public String uploadFile(MultipartFile profileImg) {
+        String fileName = generateFileName(profileImg.getOriginalFilename());
 
         try {
             ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(profileImage.getSize());
-            metadata.setContentType(profileImage.getContentType());
+            metadata.setContentLength(profileImg.getSize());
+            metadata.setContentType(profileImg.getContentType());
 
-            uploadToS3(bucket, fileName, profileImage, metadata);
-            return getFileUrl(fileName);
+            uploadToS3(bucket, fileName, profileImg, metadata);
+            return fileName;
 
         } catch (IOException e) {
             throw new AwsS3Exception(ErrorCode.AWS_S3_FILE_UPLOAD_FAIL);
         }
+    }
+
+    public void deleteFile(String fileName) {
+        try {
+            s3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
+            log.debug("삭제한 이미지 파일 이름: {}", fileName);
+        } catch (AmazonServiceException e) {
+            throw new AwsS3Exception(ErrorCode.AWS_S3_FILE_DELETE_FAIL);
+        }
+    }
+
+    public String getFileUrl(String fileName) {
+        return s3Client.getUrl(bucket, fileName).toString();
     }
 
     private String generateFileName(String originalFileName) {
@@ -48,10 +63,6 @@ public class AmazonS3Service {
     private void uploadToS3(String bucket, String fileName, MultipartFile file, ObjectMetadata metadata)
             throws IOException {
         s3Client.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata));
-    }
-
-    private String getFileUrl(String fileName) {
-        return s3Client.getUrl(bucket, fileName).toString();
     }
 
 }
