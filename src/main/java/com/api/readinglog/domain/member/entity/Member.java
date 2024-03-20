@@ -1,7 +1,7 @@
 package com.api.readinglog.domain.member.entity;
 
 import com.api.readinglog.common.base.BaseTimeEntity;
-import com.api.readinglog.domain.member.controller.dto.JoinRequest;
+import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

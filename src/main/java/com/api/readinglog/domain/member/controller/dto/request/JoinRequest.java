@@ -1,4 +1,4 @@
-package com.api.readinglog.domain.member.controller.dto;
+package com.api.readinglog.domain.member.controller.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

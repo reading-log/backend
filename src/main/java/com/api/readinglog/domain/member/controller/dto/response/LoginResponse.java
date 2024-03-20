@@ -1,4 +1,4 @@
-package com.api.readinglog.domain.member.controller.dto;
+package com.api.readinglog.domain.member.controller.dto.response;
 
 import com.api.readinglog.common.jwt.JwtToken;
 import lombok.Builder;

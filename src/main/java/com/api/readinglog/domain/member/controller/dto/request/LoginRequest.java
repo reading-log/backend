@@ -1,4 +1,4 @@
-package com.api.readinglog.domain.member.controller.dto;
+package com.api.readinglog.domain.member.controller.dto.request;
 
 import lombok.Getter;
 
