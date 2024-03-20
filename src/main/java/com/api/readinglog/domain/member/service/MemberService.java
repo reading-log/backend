@@ -5,8 +5,10 @@ import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.MemberException;
 import com.api.readinglog.common.jwt.JwtToken;
 import com.api.readinglog.common.jwt.JwtTokenProvider;
-import com.api.readinglog.domain.member.controller.dto.JoinRequest;
-import com.api.readinglog.domain.member.controller.dto.LoginRequest;
+import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
+import com.api.readinglog.domain.member.controller.dto.request.LoginRequest;
+import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequest;
+import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.entity.MemberRole;
 import com.api.readinglog.domain.member.repository.MemberRepository;
@@ -39,10 +41,10 @@ public class MemberService {
         validatePassword(request.getPassword(), request.getPasswordConfirm());
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-        String uploadFileUrl = determineProfileImageUrl(request.getProfileImage());
+        String uploadFileName = determineProfileImageUrl(request.getProfileImage());
 
-        Member member = Member.of(request, encodedPassword, uploadFileUrl);
-        log.debug("회원 프로필 사진 객체 URL: {}", uploadFileUrl);
+        Member member = Member.of(request, encodedPassword, uploadFileName);
+        log.debug("회원 프로필 사진 이름: {}", uploadFileName);
         memberRepository.save(member);
     }
 
@@ -59,6 +61,20 @@ public class MemberService {
 
     public Member getMemberById(Long memberId) {
         return memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.NOT_FOUND_MEMBER));
+    }
+
+    public void updateProfile(Long memberId, UpdateProfileRequest request) {
+        Member member = getMemberById(memberId);
+
+        // 기존 이미지를 기본 값으로 설정
+        String updatedFileName = member.getProfileImg();
+
+        if(!isEmptyProfileImg(request.getProfileImg())) {
+            // 수정할 이미지 데이터가 존재할 경우, 기존 이미지 삭제 후 새 이미지 업로드
+            amazonS3Service.deleteFile(member.getProfileImg());
+            updatedFileName = amazonS3Service.uploadFile(request.getProfileImg());
+        }
+        member.updateProfile(request.getNickname(), updatedFileName);
     }
 
     private void validateExistingMember(String email, String nickname) {
@@ -94,5 +110,9 @@ public class MemberService {
         } else {
             return amazonS3Service.uploadFile(profileImage);
         }
+    }
+
+    private boolean isEmptyProfileImg(MultipartFile profileImg) {
+        return (profileImg == null || profileImg.isEmpty());
     }
 }
