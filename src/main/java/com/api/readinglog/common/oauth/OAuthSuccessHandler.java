@@ -25,6 +25,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
 
+        /* TODO: 로그인 성공 후 발급 한 토큰을 Cookie에 담아서 클라이언트에게 전달 */
         String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:8080")
                 .queryParam("accessToken", jwtToken.getAccessToken())
                 .queryParam("refreshToken", jwtToken.getRefreshToken())
