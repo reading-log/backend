@@ -64,4 +64,9 @@ public class MemberController {
         return Response.success(HttpStatus.OK, "일반 회원 탈퇴 성공!");
     }
 
+    @DeleteMapping("/social/me")
+    public Response<Void> deleteSocialMember(@AuthenticationPrincipal CustomUserDetail user) {
+        memberService.deleteSocialMember(user.getId());
+        return Response.success(HttpStatus.OK, "소셜 회원 탈퇴 성공!");
+    }
 }
