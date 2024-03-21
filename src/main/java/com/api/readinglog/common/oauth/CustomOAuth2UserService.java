@@ -1,8 +1,10 @@
 package com.api.readinglog.common.oauth;
 
 import com.api.readinglog.common.security.CustomUserDetail;
+import com.api.readinglog.domain.token.entity.AccessToken;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.entity.MemberRole;
+import com.api.readinglog.domain.token.repository.AccessTokenRepository;
 import com.api.readinglog.domain.member.repository.MemberRepository;
 import java.util.Collections;
 import java.util.Map;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final MemberRepository memberRepository;
+    private final AccessTokenRepository accessTokenRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -32,9 +35,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
                 .getUserNameAttributeName();
+        String socialAccessToken = userRequest.getAccessToken().getTokenValue();
 
         OAuth2Attribute oAuth2Attribute = OAuth2Attribute.of(registrationId, userNameAttributeName,
-                oAuth2User.getAttributes());
+                oAuth2User.getAttributes(), socialAccessToken);
 
         // 각 플랫폼의 유저 정보를 공통화 처리해주는 부분
         Map<String, Object> memberAttribute = oAuth2Attribute.convertToMap();
@@ -48,8 +52,19 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         Member member = memberRepository.findByEmailAndRole(email, memberRole)
                 .map(existingMember -> {
                     existingMember.updateProfile(name, picture);
+
+                    // AccessToken 엔티티 업데이트 또는 생성 로직 수정
+                    accessTokenRepository.findByMember(existingMember).ifPresentOrElse(
+                            existingToken -> existingToken.updateSocialAccessToken(socialAccessToken),
+                            () -> accessTokenRepository.save(AccessToken.of(socialAccessToken, existingMember))
+                    );
                     return existingMember;
-                }).orElseGet(() -> memberRepository.save(Member.of(email, name, picture, memberRole)));
+
+                }).orElseGet(() -> {
+                    Member newMember = memberRepository.save(Member.of(email, name, picture, memberRole));
+                    accessTokenRepository.save(AccessToken.of(socialAccessToken, newMember)); // 새로운 Member에 대한 AccessToken 저장
+                    return newMember;
+                });
 
         return new CustomUserDetail(
                 member,
