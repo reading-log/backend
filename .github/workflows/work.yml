@@ -68,5 +68,8 @@ jobs:
           script: |
             sudo docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
             sudo docker pull ${{ secrets.DOCKER_REPO }}
+            sudo docker stop readinglog_app || true
+            sudo docker rm readinglog_app || true
             sudo docker run --name=readinglog_app --restart unless-stopped \
             -p 8080:8080 -e TZ=Asia/Seoul -d ${{ secrets.DOCKER_REPO }}
+            sudo docker image prune -f
