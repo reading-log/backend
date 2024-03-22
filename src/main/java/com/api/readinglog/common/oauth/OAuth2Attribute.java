@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @ToString
 @Slf4j
 @Builder(access = AccessLevel.PRIVATE)
+@SuppressWarnings("unchecked")
 public class OAuth2Attribute {
 
     private Map<String, Object> attributes; // 소셜 로그인 사용자의 속성 정보를 담는 Map
