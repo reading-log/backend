@@ -3,8 +3,6 @@ spring:
     active: dev
 
   jpa:
-    hibernate:
-      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
