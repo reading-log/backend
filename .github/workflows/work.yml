@@ -1,4 +1,4 @@
-name: 'work'
+name: 'readinglog-ci/cd'
 
 on:
   push:
