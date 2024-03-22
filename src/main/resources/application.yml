@@ -7,15 +7,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    defer-datasource-initialization: true
 
   h2:
     console:
       enabled: true
-
-  sql:
-    init:
-      mode: always
 
 logging:
   level:
