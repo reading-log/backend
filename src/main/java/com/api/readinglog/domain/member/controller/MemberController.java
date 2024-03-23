@@ -3,13 +3,14 @@ package com.api.readinglog.domain.member.controller;
 import com.api.readinglog.common.jwt.JwtToken;
 import com.api.readinglog.common.response.Response;
 import com.api.readinglog.common.security.CustomUserDetail;
+import com.api.readinglog.common.security.util.CookieUtils;
 import com.api.readinglog.domain.member.controller.dto.request.DeleteRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
 import com.api.readinglog.domain.member.controller.dto.request.LoginRequest;
-import com.api.readinglog.domain.member.controller.dto.response.LoginResponse;
 import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequest;
 import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.service.MemberService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,9 +40,11 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public Response<LoginResponse> login(@RequestBody LoginRequest request) {
+    public Response<Void> login(@RequestBody LoginRequest request, HttpServletResponse response) {
         JwtToken jwtToken = memberService.login(request);
-        return Response.success(HttpStatus.OK, "로그인 성공!", LoginResponse.of(jwtToken));
+        CookieUtils.addCookie(response, "accessToken", jwtToken.getAccessToken(), 24 * 60 * 60);
+        CookieUtils.addCookie(response, "refreshToken", jwtToken.getRefreshToken(), 24 * 60 * 60 * 7);
+        return Response.success(HttpStatus.OK, "로그인 성공!");
     }
 
     @GetMapping("/me")
