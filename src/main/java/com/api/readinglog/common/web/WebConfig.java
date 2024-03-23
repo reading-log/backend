@@ -12,6 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
         // TODO: cors 설정 좀 더 다듬기
         registry.addMapping("/**")
                 .allowedOriginPatterns("*")
+                .allowedOrigins("http://localhost:5173")
                 .allowedHeaders("*")
                 .allowedMethods("*")
                 .exposedHeaders("*")

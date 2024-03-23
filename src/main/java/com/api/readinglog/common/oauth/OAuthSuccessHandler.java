@@ -2,6 +2,7 @@ package com.api.readinglog.common.oauth;
 
 import com.api.readinglog.common.jwt.JwtToken;
 import com.api.readinglog.common.jwt.JwtTokenProvider;
+import com.api.readinglog.common.security.util.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -25,12 +26,11 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
 
-        /* TODO: 로그인 성공 후 발급 한 토큰을 Cookie에 담아서 클라이언트에게 전달 */
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:8080")
-                .queryParam("accessToken", jwtToken.getAccessToken())
-                .queryParam("refreshToken", jwtToken.getRefreshToken())
-                .build().toUriString();
+        // 액세스 토큰과 리프레시 토큰을 쿠키에 담기
+        CookieUtils.addCookie(response, "accessToken", jwtToken.getAccessToken(), 24 * 60 * 60); // 1일
+        CookieUtils.addCookie(response, "refreshToken", jwtToken.getRefreshToken(), 24 * 60 * 60 * 7); // 7일
 
+        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/readinglog").build().toUriString();
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
