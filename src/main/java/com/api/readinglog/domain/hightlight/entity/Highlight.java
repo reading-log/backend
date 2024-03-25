@@ -3,6 +3,7 @@ package com.api.readinglog.domain.hightlight.entity;
 import com.api.readinglog.common.base.BaseTimeEntity;
 import com.api.readinglog.domain.book.entity.Book;
 import com.api.readinglog.domain.hightlight.controller.dto.request.ModifyRequest;
+import com.api.readinglog.domain.hightlight.controller.dto.request.WriteRequest;
 import com.api.readinglog.domain.member.entity.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,22 +44,28 @@ public class Highlight extends BaseTimeEntity {
     @Column(name = "highlight_content", nullable = false, length = 500)
     private String content;
 
+    @Column(name = "highlight_page", nullable = false)
+    private Integer page;
+
     @Builder
-    public Highlight(Member member, Book book, String content, boolean status) {
+    public Highlight(Member member, Book book, String content, Integer page) {
         this.member = member;
         this.book = book;
         this.content = content;
+        this.page = page;
     }
 
-    public static Highlight of(Member member, Book book, String content) {
+    public static Highlight of(Member member, Book book, WriteRequest request) {
         return Highlight.builder()
                 .member(member)
                 .book(book)
-                .content(content)
+                .content(request.getContent())
+                .page(request.getPage())
                 .build();
     }
 
     public void modify(ModifyRequest request) {
         this.content = request.getContent();
+        this.page = request.getPage();
     }
 }

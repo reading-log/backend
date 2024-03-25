@@ -11,6 +11,7 @@ import com.api.readinglog.domain.hightlight.repository.HighlightRepository;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,12 +25,20 @@ public class HighlightService {
     private final BookService bookService;
 
     // TODO: 하이라이트 조회 기능
+    public void highlights(Long memberId, Long bookId, Pageable pageable) {
+        Member member = memberService.getMemberById(memberId);
+        Book book = bookService.getBookById(bookId);
+
+        highlightRepository.findAllByMemberAndBook(member, book, pageable);
+
+    }
+
 
     public void write(Long memberId, Long bookId, WriteRequest request) {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
 
-        Highlight highlight = Highlight.of(member, book, request.getContent());
+        Highlight highlight = Highlight.of(member, book, request);
         highlightRepository.save(highlight);
     }
 
