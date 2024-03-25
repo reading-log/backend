@@ -2,6 +2,7 @@ package com.api.readinglog.domain.book.entity;
 
 import com.api.readinglog.common.base.BaseTimeEntity;
 import com.api.readinglog.domain.book.dto.BookDirectRequest;
+import com.api.readinglog.domain.book.dto.BookModifyRequest;
 import com.api.readinglog.domain.book.dto.BookRegisterRequest;
 import com.api.readinglog.domain.member.entity.Member;
 import jakarta.persistence.Column;
@@ -87,4 +88,11 @@ public class Book extends BaseTimeEntity {
                 .build();
     }
 
+    public void modify(BookModifyRequest request, String cover) {
+        this.title = request.getTitle();
+        this.author = request.getAuthor();
+        this.publisher = request.getPublisher();
+        this.category = request.getCategory();
+        this.cover = cover;
+    }
 }

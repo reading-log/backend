@@ -5,6 +5,7 @@ import com.api.readinglog.common.security.CustomUserDetail;
 import com.api.readinglog.domain.book.dto.BookDirectRequest;
 import com.api.readinglog.domain.book.dto.BookRegisterRequest;
 import com.api.readinglog.domain.book.dto.BookSearchApiResponse;
+import com.api.readinglog.domain.book.dto.BookModifyRequest;
 import com.api.readinglog.domain.book.service.BookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,6 +51,15 @@ public class BookController {
                                              @ModelAttribute @Valid BookDirectRequest request) {
         bookService.registerBookDirect(user.getId(), request);
         return Response.success(HttpStatus.CREATED, "책 등록 성공");
+    }
+
+    @PatchMapping("/{bookId}")
+    public Response<Void> modifyBook(@AuthenticationPrincipal CustomUserDetail user,
+                                     @ModelAttribute BookModifyRequest bookModifyRequest,
+                                     @PathVariable Long bookId) {
+
+        bookService.modifyBook(user.getId(), bookId, bookModifyRequest);
+        return Response.success(HttpStatus.OK, "책 수정 성공");
     }
 
     @DeleteMapping("/{bookId}")

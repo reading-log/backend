@@ -5,6 +5,7 @@ import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.BookException;
 import com.api.readinglog.common.exception.custom.MemberException;
 import com.api.readinglog.domain.book.dto.BookDirectRequest;
+import com.api.readinglog.domain.book.dto.BookModifyRequest;
 import com.api.readinglog.domain.book.dto.BookRegisterRequest;
 import com.api.readinglog.domain.book.dto.BookSearchApiResponse;
 import com.api.readinglog.domain.book.entity.Book;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
@@ -71,6 +73,21 @@ public class BookService {
         String cover = amazonS3Service.uploadBookCover(request.getCover());
 
         bookRepository.save(Book.of(member, request, cover));
+    }
+
+    public void modifyBook(Long memberId, Long bookId, BookModifyRequest bookModifyRequest) {
+        Member member = memberService.getMemberById(memberId);
+        Book book = getBookById(bookId);
+
+        // 파일이 존재하면 기존 이미지 삭제 후 새로운 이미지 업로드
+        String cover = book.getCover();
+        MultipartFile coverImg = bookModifyRequest.getCover();
+        if (!(coverImg == null || coverImg.isEmpty())) {
+            amazonS3Service.deleteFile(cover);
+            cover = amazonS3Service.uploadBookCover(bookModifyRequest.getCover());
+        }
+
+        book.modify(bookModifyRequest, cover);
     }
 
     public void deleteBook(Long memberId, Long bookId) {

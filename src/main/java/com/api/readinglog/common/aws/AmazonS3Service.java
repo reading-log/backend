@@ -53,7 +53,7 @@ public class AmazonS3Service {
             metadata.setContentType(profileImg.getContentType());
 
             uploadToS3(bucket, fileName, profileImg, metadata);
-            return getFileUrl(fileName);
+            return fileName;
 
         } catch (IOException e) {
             throw new AwsS3Exception(ErrorCode.AWS_S3_FILE_UPLOAD_FAIL);
