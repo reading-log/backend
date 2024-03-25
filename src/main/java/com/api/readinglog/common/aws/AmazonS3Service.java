@@ -42,6 +42,24 @@ public class AmazonS3Service {
         }
     }
 
+    // TODO: 회원, 책 이미지 업로드 시 공통으로 사용할 수 있게 리팩토링 필요함.
+    public String uploadBookCover(MultipartFile profileImg) {
+        String currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String fileName = String.format("books/%s/%s", currentDate, profileImg.getOriginalFilename());
+
+        try {
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(profileImg.getSize());
+            metadata.setContentType(profileImg.getContentType());
+
+            uploadToS3(bucket, fileName, profileImg, metadata);
+            return getFileUrl(fileName);
+
+        } catch (IOException e) {
+            throw new AwsS3Exception(ErrorCode.AWS_S3_FILE_UPLOAD_FAIL);
+        }
+    }
+
     public void deleteFile(String fileName) {
         try {
             s3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));

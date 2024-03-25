@@ -6,6 +6,7 @@ import com.api.readinglog.domain.book.dto.BookDirectRequest;
 import com.api.readinglog.domain.book.dto.BookRegisterRequest;
 import com.api.readinglog.domain.book.dto.BookSearchApiResponse;
 import com.api.readinglog.domain.book.service.BookService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,15 +39,14 @@ public class BookController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Response<Void> registerBookAfterSearch(@AuthenticationPrincipal CustomUserDetail user,
-                                       @RequestBody BookRegisterRequest request) {
+                                       @RequestBody @Valid BookRegisterRequest request) {
         bookService.registerBookAfterSearch(user.getId(), request);
         return Response.success(HttpStatus.CREATED, "책 등록 성공");
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Response<Void> registerBookDirect(@AuthenticationPrincipal CustomUserDetail user,
-                                             @ModelAttribute BookDirectRequest request) {
-        log.debug("request: {}", request);
+                                             @ModelAttribute @Valid BookDirectRequest request) {
         bookService.registerBookDirect(user.getId(), request);
         return Response.success(HttpStatus.CREATED, "책 등록 성공");
     }
