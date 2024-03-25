@@ -2,10 +2,12 @@ package com.api.readinglog.domain.member.service;
 
 import com.api.readinglog.common.aws.AmazonS3Service;
 import com.api.readinglog.common.exception.ErrorCode;
+import com.api.readinglog.common.exception.custom.JwtException;
 import com.api.readinglog.common.exception.custom.MemberException;
 import com.api.readinglog.common.jwt.JwtToken;
 import com.api.readinglog.common.jwt.JwtTokenProvider;
 import com.api.readinglog.common.oauth.OAuth2RevokeService;
+import com.api.readinglog.common.security.CustomUserDetail;
 import com.api.readinglog.domain.member.controller.dto.request.DeleteRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
 import com.api.readinglog.domain.member.controller.dto.request.LoginRequest;
@@ -13,14 +15,20 @@ import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequ
 import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.entity.MemberRole;
+import com.api.readinglog.domain.token.entity.RefreshToken;
+import com.api.readinglog.domain.token.repository.RefreshTokenRepository;
 import com.api.readinglog.domain.token.repository.SocialAccessTokenRepository;
 import com.api.readinglog.domain.member.repository.MemberRepository;
+import java.util.Collection;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,6 +48,7 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final AmazonS3Service amazonS3Service;
     private final OAuth2RevokeService oAuth2RevokeService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public void join(JoinRequest request) {
         validateExistingMember(request.getEmail(), request.getNickname());
@@ -56,7 +65,6 @@ public class MemberService {
     public JwtToken login(LoginRequest request) {
         Authentication authentication = getUserAuthentication(request);
         return jwtTokenProvider.generateToken(authentication);
-
     }
 
     public Member getMemberByEmailAndRole(String email, MemberRole role) {
@@ -113,6 +121,10 @@ public class MemberService {
         memberRepository.deleteById(member.getId()); // 회원 정보 삭제
     }
 
+    public JwtToken reissueToken(String refreshToken) {
+        return jwtTokenProvider.reissueTokenByRefreshToken(refreshToken);
+    }
+
     // 소셜 계정 연동 해제 처리를 별도의 메서드로 추출
     private void revokeSocialAccessToken(Member member, String socialAccessToken) {
         switch (member.getRole()) {
@@ -159,5 +171,21 @@ public class MemberService {
 
     private boolean isEmptyProfileImg(MultipartFile profileImg) {
         return (profileImg == null || profileImg.isEmpty());
+    }
+
+    private Authentication getUserAuthenticationFromMemberId(Long memberId) {
+        // 회원 ID로 사용자 정보 조회
+        Member member = getMemberById(memberId);
+        GrantedAuthority authority = new SimpleGrantedAuthority(member.getRole().name());
+
+        // 권한 정보를 담을 컬렉션 생성
+        Collection<GrantedAuthority> authorities = Collections.singletonList(authority);
+
+        // CustomUserDetail 객체 생성
+        CustomUserDetail customUserDetail = new CustomUserDetail(member.getEmail(), member.getPassword(),
+                member.getId(), authorities);
+
+        // Authentication 객체 생성 및 반환
+        return new UsernamePasswordAuthenticationToken(customUserDetail, "", authorities);
     }
 }

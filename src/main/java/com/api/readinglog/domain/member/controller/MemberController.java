@@ -10,6 +10,8 @@ import com.api.readinglog.domain.member.controller.dto.request.LoginRequest;
 import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequest;
 import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.service.MemberService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -71,5 +73,33 @@ public class MemberController {
     public Response<Void> deleteSocialMember(@AuthenticationPrincipal CustomUserDetail user) {
         memberService.deleteSocialMember(user.getId());
         return Response.success(HttpStatus.OK, "소셜 회원 탈퇴 성공!");
+    }
+
+    @GetMapping("/reissue")
+    public Response<Void> reissue(HttpServletRequest request, HttpServletResponse response) {
+        // 쿠키에서 리프레시 토큰 가져오기
+        String refreshToken = extractRefreshToken(request);
+
+        // 리프레시 토큰을 사용하여 새로운 토큰 재발급
+        JwtToken newToken = memberService.reissueToken(refreshToken);
+
+        // 재발급된 토큰 반환
+        response.addHeader("Authorization", newToken.getAccessToken());
+        CookieUtils.addCookie(response, "refreshToken", newToken.getRefreshToken(), 24 * 60 * 60 * 7);
+        return Response.success(HttpStatus.OK,  "토큰 재발급 성공!");
+    }
+
+    // HttpServletRequest에서 리프레시 토큰을 추출하는 메서드
+    private String extractRefreshToken(HttpServletRequest request) {
+        // 쿠키에서 리프레`시 토큰 이름으로 검색
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("refreshToken")) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        throw new IllegalStateException("리프레시 토큰이 쿠키에 없습니다.");
     }
 }
