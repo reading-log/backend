@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.protocol.HTTP;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +33,13 @@ public class HighlightController {
         log.debug("content: {}", writeRequest.getContent());
         highlightService.write(user.getId(), bookId, writeRequest);
         return Response.success(HttpStatus.CREATED, "하이라이트 작성 성공");
+    }
+
+    @DeleteMapping("/{highlightId}")
+    public Response<Void> delete(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long highlightId) {
+
+        highlightService.delete(user.getId(), highlightId);
+        return Response.success(HttpStatus.OK, "하이라이트 삭제 성공");
     }
 
 }
