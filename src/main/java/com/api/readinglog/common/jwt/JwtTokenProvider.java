@@ -48,8 +48,8 @@ public class JwtTokenProvider {
         this.memberRepository = memberRepository;
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
-        this.accessTokenExpirationTime = accessTokenExpirationTime * 1000;
-        this.refreshTokenExpirationTime = refreshTokenExpirationTime * 1000;
+        this.accessTokenExpirationTime = accessTokenExpirationTime;
+        this.refreshTokenExpirationTime = refreshTokenExpirationTime;
     }
 
     public JwtToken generateToken(Authentication authentication) {
