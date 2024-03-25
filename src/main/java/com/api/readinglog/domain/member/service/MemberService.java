@@ -13,7 +13,7 @@ import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequ
 import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.entity.MemberRole;
-import com.api.readinglog.domain.token.repository.AccessTokenRepository;
+import com.api.readinglog.domain.token.repository.SocialAccessTokenRepository;
 import com.api.readinglog.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final AccessTokenRepository accessTokenRepository;
+    private final SocialAccessTokenRepository socialAccessTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -104,10 +104,10 @@ public class MemberService {
     public void deleteSocialMember(Long memberId) {
         Member member = getMemberById(memberId);
 
-        accessTokenRepository.findByMember(member).ifPresent(accessToken -> {
+        socialAccessTokenRepository.findByMember(member).ifPresent(accessToken -> {
             String socialAccessToken = accessToken.getSocialAccessToken();
             revokeSocialAccessToken(member, socialAccessToken);
-            accessTokenRepository.delete(accessToken); // AccessToken 삭제
+            socialAccessTokenRepository.delete(accessToken); // SocialAccessToken 삭제
         });
 
         memberRepository.deleteById(member.getId()); // 회원 정보 삭제
