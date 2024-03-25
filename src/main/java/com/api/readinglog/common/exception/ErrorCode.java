@@ -24,6 +24,8 @@ public enum ErrorCode {
 
     // 403
     FORBIDDEN_DELETE("삭제 권한이 없습니다!", HttpStatus.FORBIDDEN),
+    NOT_MATCH_MEMBER("회원이 일치하지 않습니다!", HttpStatus.FORBIDDEN),
+
 
     // 404
     NOT_FOUND_MEMBER("회원이 존재하지 않습니다!", HttpStatus.NOT_FOUND),

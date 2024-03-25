@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
-public class BookDirectRequest {
+public class BookModifyRequest {
 
     @NotBlank(message = "제목은 필수 입력 값입니다.")
     private String title;
@@ -21,4 +21,5 @@ public class BookDirectRequest {
     private String category;
 
     private MultipartFile cover;
+
 }

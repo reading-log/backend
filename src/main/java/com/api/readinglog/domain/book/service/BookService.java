@@ -1,9 +1,12 @@
 package com.api.readinglog.domain.book.service;
 
+import com.api.readinglog.common.aws.AmazonS3Service;
 import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.BookException;
 import com.api.readinglog.common.exception.custom.MemberException;
+import com.api.readinglog.domain.book.dto.BookDetailResponse;
 import com.api.readinglog.domain.book.dto.BookDirectRequest;
+import com.api.readinglog.domain.book.dto.BookModifyRequest;
 import com.api.readinglog.domain.book.dto.BookRegisterRequest;
 import com.api.readinglog.domain.book.dto.BookSearchApiResponse;
 import com.api.readinglog.domain.book.entity.Book;
@@ -14,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
@@ -25,6 +29,20 @@ public class BookService {
     private final WebClient webClient;
     private final BookRepository bookRepository;
     private final MemberService memberService;
+    private final AmazonS3Service amazonS3Service;
+
+    @Transactional(readOnly = true)
+    public BookDetailResponse getBookInfo(Long memberId, Long bookId) {
+        Member member = memberService.getMemberById(memberId);
+
+        Book book = bookRepository.findById(bookId).orElseThrow(() -> new BookException(ErrorCode.NOT_FOUND_BOOK));
+        if (book.getMember() != member) {
+            throw new MemberException(ErrorCode.NOT_MATCH_MEMBER);
+        }
+
+        String coverImgUrl = amazonS3Service.getFileUrl(book.getCover());
+        return BookDetailResponse.fromEntity(book, coverImgUrl);
+    }
 
     @Transactional(readOnly = true)
     public BookSearchApiResponse searchBooks(String query, int start) {
@@ -59,12 +77,6 @@ public class BookService {
 
     // 책 자동 등록
     public void registerBookAfterSearch(Long memberId, BookRegisterRequest request) {
-        Integer bookItemId = request.getItemId(); // 알라딘에서 제공해주는 책 고유 id
-        // TODO: 내가 등록한 책 중에 해당 id로 등록된 책이 있으면 바로 상세 페이지로 이동
-        /**
-         * 이미 같은 책이 등록된 경우에는 나의 로그로 이동
-         * 중복책 등록은 애초에 막아버리기
-         */
         Member member = memberService.getMemberById(memberId);
         bookRepository.save(Book.of(member, request));
     }
@@ -72,9 +84,24 @@ public class BookService {
     // 책 직접 등록
     public void registerBookDirect(Long memberId, BookDirectRequest request) {
         Member member = memberService.getMemberById(memberId);
+        String cover = amazonS3Service.uploadBookCover(request.getCover());
 
-        // TODO: 커버 이미지 s3 업로드
-        bookRepository.save(Book.of(member, request));
+        bookRepository.save(Book.of(member, request, cover));
+    }
+
+    public void modifyBook(Long memberId, Long bookId, BookModifyRequest bookModifyRequest) {
+        Member member = memberService.getMemberById(memberId);
+        Book book = getBookById(bookId);
+
+        // 파일이 존재하면 기존 이미지 삭제 후 새로운 이미지 업로드
+        String cover = book.getCover();
+        MultipartFile coverImg = bookModifyRequest.getCover();
+        if (!(coverImg == null || coverImg.isEmpty())) {
+            amazonS3Service.deleteFile(cover);
+            cover = amazonS3Service.uploadBookCover(bookModifyRequest.getCover());
+        }
+
+        book.modify(bookModifyRequest, cover);
     }
 
     public void deleteBook(Long memberId, Long bookId) {
