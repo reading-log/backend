@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AccessToken {
+public class SocialAccessToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,13 +29,13 @@ public class AccessToken {
     private Member member;
 
     @Builder
-    public AccessToken(String socialAccessToken, Member member) {
+    private SocialAccessToken(String socialAccessToken, Member member) {
         this.socialAccessToken = socialAccessToken;
         this.member = member;
     }
 
-    public static AccessToken of(String socialAccessToken, Member member) {
-        return AccessToken.builder()
+    public static SocialAccessToken of(String socialAccessToken, Member member) {
+        return SocialAccessToken.builder()
                 .socialAccessToken(socialAccessToken)
                 .member(member)
                 .build();

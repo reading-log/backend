@@ -26,11 +26,15 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
 
-        // 액세스 토큰과 리프레시 토큰을 쿠키에 담기
-        CookieUtils.addCookie(response, "accessToken", jwtToken.getAccessToken(), 24 * 60 * 60); // 1일
-        CookieUtils.addCookie(response, "refreshToken", jwtToken.getRefreshToken(), 24 * 60 * 60 * 7); // 7일
+        // access token 헤더에 담기
+        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/readinglog")
+                .queryParam("accessToken", jwtToken.getAccessToken())
+                .build().toUriString();
 
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/readinglog").build().toUriString();
+        // refresh token 쿠키에 담기
+        String refreshToken = jwtToken.getRefreshToken();
+        CookieUtils.addCookie(response, "refreshToken", refreshToken, 24 * 60 * 60 * 7); // 7일
+
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
