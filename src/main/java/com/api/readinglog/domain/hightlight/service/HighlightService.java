@@ -6,11 +6,13 @@ import com.api.readinglog.domain.book.entity.Book;
 import com.api.readinglog.domain.book.service.BookService;
 import com.api.readinglog.domain.hightlight.controller.dto.request.ModifyRequest;
 import com.api.readinglog.domain.hightlight.controller.dto.request.WriteRequest;
+import com.api.readinglog.domain.hightlight.controller.dto.response.HighlightResponse;
 import com.api.readinglog.domain.hightlight.entity.Highlight;
 import com.api.readinglog.domain.hightlight.repository.HighlightRepository;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +26,12 @@ public class HighlightService {
     private final MemberService memberService;
     private final BookService bookService;
 
-    // TODO: 하이라이트 조회 기능
-    public void highlights(Long memberId, Long bookId, Pageable pageable) {
+    public Page<HighlightResponse> highlights(Long memberId, Long bookId, Pageable pageable) {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
 
-        highlightRepository.findAllByMemberAndBook(member, book, pageable);
-
+        return highlightRepository.findAllByMemberAndBook(member, book, pageable)
+                .map(HighlightResponse::fromEntity);
     }
 
 
