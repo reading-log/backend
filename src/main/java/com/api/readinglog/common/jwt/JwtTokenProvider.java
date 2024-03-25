@@ -60,14 +60,8 @@ public class JwtTokenProvider {
                 .build();
     }
 
-    // 리프레시 토큰을 이용해 액세스 토큰을 재발급 하기
+    // 리프레시 토큰을 이용해 액세스 토큰을 재발급
     public JwtToken reissueTokenByRefreshToken(String oldRefreshToken) {
-
-        // 리프레시 토큰의 유효성을 검사
-        if (!validateToken(oldRefreshToken)) {
-            throw new JwtException(ErrorCode.INVALID_TOKEN);
-        }
-
         RefreshToken oldRefreshTokenDB = refreshTokenRepository.findByRefreshToken(oldRefreshToken)
                 .orElseThrow(() -> new JwtException(ErrorCode.NOT_FOUND_REFRESH_TOKEN));
         Authentication authentication = getAuthenticationFromMemberId(oldRefreshTokenDB.getMemberId());
@@ -112,14 +106,17 @@ public class JwtTokenProvider {
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
+            throw new JwtException(ErrorCode.INVALID_TOKEN);
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT Token", e);
+            throw new JwtException(ErrorCode.TOKEN_EXPIRED);
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT Token", e);
+            throw new JwtException(ErrorCode.UNSUPPORTED_TOKEN);
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty.", e);
+            throw new JwtException(ErrorCode.NOT_FOUND_TOKEN);
         }
-        return false;
     }
 
     private String generateAccessToken(Authentication authentication) {

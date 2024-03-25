@@ -15,6 +15,8 @@ public enum ErrorCode {
     UNAUTHORIZED_LOGIN("로그인 실패: 인증에 실패하였습니다.", HttpStatus.UNAUTHORIZED),
     TOKEN_EXPIRED("만료된 토큰입니다.", HttpStatus.UNAUTHORIZED),
     INVALID_TOKEN("유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    UNSUPPORTED_TOKEN("지원하지 않는 형식의 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    NOT_FOUND_TOKEN("토큰을 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED),
     NOT_FOUND_REFRESH_TOKEN("해당 사용자의 리프레시 토큰을 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED),
 
     // 400
