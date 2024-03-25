@@ -19,6 +19,7 @@ public enum ErrorCode {
 
     // 403
     FORBIDDEN_DELETE("삭제 권한이 없습니다!", HttpStatus.FORBIDDEN),
+    FORBIDDEN_MODIFY("수정 권한이 없습니다!", HttpStatus.FORBIDDEN),
     NOT_MATCH_MEMBER("회원이 일치하지 않습니다!", HttpStatus.FORBIDDEN),
 
 

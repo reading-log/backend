@@ -4,13 +4,13 @@ import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.HighlightException;
 import com.api.readinglog.domain.book.entity.Book;
 import com.api.readinglog.domain.book.service.BookService;
-import com.api.readinglog.domain.hightlight.controller.dto.WriteRequest;
+import com.api.readinglog.domain.hightlight.controller.dto.request.ModifyRequest;
+import com.api.readinglog.domain.hightlight.controller.dto.request.WriteRequest;
 import com.api.readinglog.domain.hightlight.entity.Highlight;
 import com.api.readinglog.domain.hightlight.repository.HighlightRepository;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.integration.IntegrationProperties.Error;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +23,8 @@ public class HighlightService {
     private final MemberService memberService;
     private final BookService bookService;
 
+    // TODO: 하이라이트 조회 기능
+
     public void write(Long memberId, Long bookId, WriteRequest request) {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
@@ -31,12 +33,23 @@ public class HighlightService {
         highlightRepository.save(highlight);
     }
 
+    public void modify(Long memberId, Long highlightId, ModifyRequest request) {
+        Member member = memberService.getMemberById(memberId);
+        Highlight highlight = getHighlightById(highlightId);
+
+        if (highlight.getMember() != member) {
+            throw new HighlightException(ErrorCode.FORBIDDEN_MODIFY);
+        }
+
+        highlight.modify(request);
+    }
+
     public void delete(Long memberId, Long highlightId) {
         Member member = memberService.getMemberById(memberId);
         Highlight highlight = getHighlightById(highlightId);
 
         if (highlight.getMember() != member) {
-            throw new HighlightException(ErrorCode.NOT_MATCH_MEMBER);
+            throw new HighlightException(ErrorCode.FORBIDDEN_DELETE);
         }
 
         highlightRepository.delete(highlight);
@@ -46,5 +59,4 @@ public class HighlightService {
         return highlightRepository.findById(highlightId)
                 .orElseThrow(() -> new HighlightException(ErrorCode.NOT_FOUND_HIGHLIGHT));
     }
-
 }

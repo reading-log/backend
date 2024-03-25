@@ -2,15 +2,16 @@ package com.api.readinglog.domain.hightlight.controller;
 
 import com.api.readinglog.common.response.Response;
 import com.api.readinglog.common.security.CustomUserDetail;
-import com.api.readinglog.domain.hightlight.controller.dto.WriteRequest;
+import com.api.readinglog.domain.hightlight.controller.dto.request.ModifyRequest;
+import com.api.readinglog.domain.hightlight.controller.dto.request.WriteRequest;
 import com.api.readinglog.domain.hightlight.service.HighlightService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.protocol.HTTP;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,6 +34,15 @@ public class HighlightController {
         log.debug("content: {}", writeRequest.getContent());
         highlightService.write(user.getId(), bookId, writeRequest);
         return Response.success(HttpStatus.CREATED, "하이라이트 작성 성공");
+    }
+
+    @PatchMapping("/{highlightId}")
+    public Response<Void> modify(@AuthenticationPrincipal CustomUserDetail user,
+                                 @PathVariable Long highlightId,
+                                 @RequestBody @Valid ModifyRequest modifyRequest) {
+
+        highlightService.modify(user.getId(), highlightId, modifyRequest);
+        return Response.success(HttpStatus.OK, "하이라이트 수정 성공");
     }
 
     @DeleteMapping("/{highlightId}")
