@@ -2,6 +2,7 @@ package com.api.readinglog.domain.book.entity;
 
 import com.api.readinglog.common.base.BaseTimeEntity;
 import com.api.readinglog.domain.book.dto.BookDirectRequest;
+import com.api.readinglog.domain.book.dto.BookModifyRequest;
 import com.api.readinglog.domain.book.dto.BookRegisterRequest;
 import com.api.readinglog.domain.member.entity.Member;
 import jakarta.persistence.Column;
@@ -47,16 +48,20 @@ public class Book extends BaseTimeEntity {
     @Column(name = "book_publisher", nullable = false)
     private String publisher; // 출판사
 
+    @Column(name = "book_category", nullable = false)
+    private String category; // 카테고리
+
     @Column(name = "book_cover")
     private String cover;
 
     @Builder
-    private Book(Member member, Integer itemId, String title, String author, String publisher, String cover) {
+    private Book(Member member, Integer itemId, String title, String author, String publisher, String category, String cover) {
         this.member = member;
         this.itemId = itemId;
         this.title = title;
         this.author = author;
         this.publisher = publisher;
+        this.category = category;
         this.cover = cover;
     }
 
@@ -67,18 +72,27 @@ public class Book extends BaseTimeEntity {
                 .title(request.getTitle())
                 .author(request.getAuthor())
                 .publisher(request.getPublisher())
+                .category(request.getCategory())
                 .cover(request.getCover())
                 .build();
     }
 
-    public static Book of(Member member, BookDirectRequest request) {
+    public static Book of(Member member, BookDirectRequest request, String cover) {
         return Book.builder()
                 .member(member)
                 .title(request.getTitle())
                 .author(request.getAuthor())
                 .publisher(request.getPublisher())
-                .cover(request.getCover().getOriginalFilename()) // TODO: s3 업로드
+                .category(request.getCategory())
+                .cover(cover)
                 .build();
     }
 
+    public void modify(BookModifyRequest request, String cover) {
+        this.title = request.getTitle();
+        this.author = request.getAuthor();
+        this.publisher = request.getPublisher();
+        this.category = request.getCategory();
+        this.cover = cover;
+    }
 }

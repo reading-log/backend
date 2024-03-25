@@ -25,7 +25,6 @@ public class BookSearchApiResponse {
         private String author;
         private String publisher;
         private String cover;
-        private String categoryName; // TODO: 카테고리 생각해보기
     }
 }
 
