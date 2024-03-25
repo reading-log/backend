@@ -2,6 +2,7 @@ package com.api.readinglog.domain.book.controller;
 
 import com.api.readinglog.common.response.Response;
 import com.api.readinglog.common.security.CustomUserDetail;
+import com.api.readinglog.domain.book.dto.BookDetailResponse;
 import com.api.readinglog.domain.book.dto.BookDirectRequest;
 import com.api.readinglog.domain.book.dto.BookRegisterRequest;
 import com.api.readinglog.domain.book.dto.BookSearchApiResponse;
@@ -32,6 +33,12 @@ public class BookController {
 
     private final BookService bookService;
 
+    @GetMapping("/{bookId}")
+    public Response<BookDetailResponse> getBookInfo(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long bookId) {
+
+        return Response.success(HttpStatus.OK, String.format("%d번 책 정보 응답 성공", bookId), bookService.getBookInfo(user.getId(), bookId));
+    }
+
     @GetMapping("/search")
     public Response<BookSearchApiResponse> searchBooks(@RequestParam(required = false) String q,
                                                        @RequestParam(defaultValue = "1") int start) {
@@ -42,6 +49,7 @@ public class BookController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Response<Void> registerBookAfterSearch(@AuthenticationPrincipal CustomUserDetail user,
                                        @RequestBody @Valid BookRegisterRequest request) {
+
         bookService.registerBookAfterSearch(user.getId(), request);
         return Response.success(HttpStatus.CREATED, "책 등록 성공");
     }
@@ -49,6 +57,7 @@ public class BookController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Response<Void> registerBookDirect(@AuthenticationPrincipal CustomUserDetail user,
                                              @ModelAttribute @Valid BookDirectRequest request) {
+
         bookService.registerBookDirect(user.getId(), request);
         return Response.success(HttpStatus.CREATED, "책 등록 성공");
     }

@@ -4,6 +4,7 @@ import com.api.readinglog.common.aws.AmazonS3Service;
 import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.BookException;
 import com.api.readinglog.common.exception.custom.MemberException;
+import com.api.readinglog.domain.book.dto.BookDetailResponse;
 import com.api.readinglog.domain.book.dto.BookDirectRequest;
 import com.api.readinglog.domain.book.dto.BookModifyRequest;
 import com.api.readinglog.domain.book.dto.BookRegisterRequest;
@@ -29,6 +30,19 @@ public class BookService {
     private final BookRepository bookRepository;
     private final MemberService memberService;
     private final AmazonS3Service amazonS3Service;
+
+    @Transactional(readOnly = true)
+    public BookDetailResponse getBookInfo(Long memberId, Long bookId) {
+        Member member = memberService.getMemberById(memberId);
+
+        Book book = bookRepository.findById(bookId).orElseThrow(() -> new BookException(ErrorCode.NOT_FOUND_BOOK));
+        if (book.getMember() != member) {
+            throw new MemberException(ErrorCode.NOT_MATCH_MEMBER);
+        }
+
+        String coverImgUrl = amazonS3Service.getFileUrl(book.getCover());
+        return BookDetailResponse.fromEntity(book, coverImgUrl);
+    }
 
     @Transactional(readOnly = true)
     public BookSearchApiResponse searchBooks(String query, int start) {
