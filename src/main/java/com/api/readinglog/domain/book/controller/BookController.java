@@ -31,10 +31,10 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping("/search")
-    public Response<BookSearchApiResponse> searchBooks(@RequestParam(required = false) String query,
+    public Response<BookSearchApiResponse> searchBooks(@RequestParam(required = false) String q,
                                                        @RequestParam(defaultValue = "1") int start) {
         
-        return Response.success(HttpStatus.OK, "책 검색 성공", bookService.searchBooks(query, start));
+        return Response.success(HttpStatus.OK, "책 검색 성공", bookService.searchBooks(q, start));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
