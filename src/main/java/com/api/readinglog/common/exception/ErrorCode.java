@@ -13,6 +13,8 @@ public enum ErrorCode {
 
     // 401
     UNAUTHORIZED_LOGIN("로그인 실패: 인증에 실패하였습니다.", HttpStatus.UNAUTHORIZED),
+    TOKEN_EXPIRED("만료된 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    INVALID_TOKEN("유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
 
     // 400
     EMPTY_SEARCH_KEYWORD("검색어를 입력해주세요!", HttpStatus.BAD_REQUEST),

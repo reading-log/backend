@@ -1,5 +1,7 @@
 package com.api.readinglog.common.jwt;
 
+import com.api.readinglog.common.exception.ErrorCode;
+import com.api.readinglog.common.exception.custom.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,11 +22,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String token = resolveToken((HttpServletRequest) request);
+        String token = resolveToken(request);
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            Authentication authentication = jwtTokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            if (token != null && jwtTokenProvider.validateToken(token)) {
+                Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (Exception e) {
+            throw new JwtException(ErrorCode.INVALID_TOKEN);
         }
         filterChain.doFilter(request, response);
     }
