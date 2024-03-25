@@ -42,7 +42,7 @@ public class MemberController {
     @PostMapping("/login")
     public Response<Void> login(@RequestBody LoginRequest request, HttpServletResponse response) {
         JwtToken jwtToken = memberService.login(request);
-        CookieUtils.addCookie(response, "accessToken", jwtToken.getAccessToken(), 24 * 60 * 60);
+        response.addHeader("Authorization", jwtToken.getAccessToken());
         CookieUtils.addCookie(response, "refreshToken", jwtToken.getRefreshToken(), 24 * 60 * 60 * 7);
         return Response.success(HttpStatus.OK, "로그인 성공!");
     }
