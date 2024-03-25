@@ -115,7 +115,7 @@ public class BookService {
         bookRepository.delete(book);
     }
 
-    private Book getBookById(Long bookId) {
+    public Book getBookById(Long bookId) {
         return bookRepository.findById(bookId).orElseThrow(() -> new BookException(ErrorCode.NOT_FOUND_BOOK));
     }
 }
