@@ -8,6 +8,7 @@ import com.api.readinglog.common.jwt.JwtToken;
 import com.api.readinglog.common.jwt.JwtTokenProvider;
 import com.api.readinglog.common.oauth.OAuth2RevokeService;
 import com.api.readinglog.common.security.CustomUserDetail;
+import com.api.readinglog.common.security.util.JwtUtils;
 import com.api.readinglog.domain.member.controller.dto.request.DeleteRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
 import com.api.readinglog.domain.member.controller.dto.request.LoginRequest;
@@ -15,10 +16,10 @@ import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequ
 import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.entity.MemberRole;
-import com.api.readinglog.domain.token.entity.RefreshToken;
 import com.api.readinglog.domain.token.repository.RefreshTokenRepository;
 import com.api.readinglog.domain.token.repository.SocialAccessTokenRepository;
 import com.api.readinglog.domain.member.repository.MemberRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +49,7 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final AmazonS3Service amazonS3Service;
     private final OAuth2RevokeService oAuth2RevokeService;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtUtils jwtUtils;
 
     public void join(JoinRequest request) {
         validateExistingMember(request.getEmail(), request.getNickname());
@@ -99,6 +100,10 @@ public class MemberService {
             updatedFileName = amazonS3Service.uploadFile(request.getProfileImg());
         }
         member.updateProfile(request.getNickname(), updatedFileName);
+    }
+
+    public void logout(String token, HttpServletResponse response) {
+        jwtUtils.handleLogout(token, response);
     }
 
     public void deleteMember(Long memberId, DeleteRequest request) {
@@ -171,21 +176,5 @@ public class MemberService {
 
     private boolean isEmptyProfileImg(MultipartFile profileImg) {
         return (profileImg == null || profileImg.isEmpty());
-    }
-
-    private Authentication getUserAuthenticationFromMemberId(Long memberId) {
-        // 회원 ID로 사용자 정보 조회
-        Member member = getMemberById(memberId);
-        GrantedAuthority authority = new SimpleGrantedAuthority(member.getRole().name());
-
-        // 권한 정보를 담을 컬렉션 생성
-        Collection<GrantedAuthority> authorities = Collections.singletonList(authority);
-
-        // CustomUserDetail 객체 생성
-        CustomUserDetail customUserDetail = new CustomUserDetail(member.getEmail(), member.getPassword(),
-                member.getId(), authorities);
-
-        // Authentication 객체 생성 및 반환
-        return new UsernamePasswordAuthenticationToken(customUserDetail, "", authorities);
     }
 }
