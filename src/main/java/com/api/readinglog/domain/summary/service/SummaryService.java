@@ -47,6 +47,17 @@ public class SummaryService {
         summary.modify(request);
     }
 
+    public void delete(Long memberId, Long summaryId) {
+        Member member = memberService.getMemberById(memberId);
+        Summary summary = getSummaryById(summaryId);
+
+        if (summary.getMember() != member) {
+            throw new SummaryException(ErrorCode.FORBIDDEN_DELETE);
+        }
+
+        summaryRepository.delete(summary);
+    }
+
     public Summary getSummaryById(Long summaryId) {
         return summaryRepository.findById(summaryId)
                 .orElseThrow(() -> new SummaryException(ErrorCode.NOT_FOUND_SUMMARY));
