@@ -1,11 +1,11 @@
 package com.api.readinglog.common.oauth;
 
 import com.api.readinglog.common.security.CustomUserDetail;
-import com.api.readinglog.domain.token.entity.SocialAccessToken;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.entity.MemberRole;
-import com.api.readinglog.domain.token.repository.SocialAccessTokenRepository;
 import com.api.readinglog.domain.member.repository.MemberRepository;
+import com.api.readinglog.domain.token.entity.SocialAccessToken;
+import com.api.readinglog.domain.token.repository.SocialAccessTokenRepository;
 import java.util.Collections;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
