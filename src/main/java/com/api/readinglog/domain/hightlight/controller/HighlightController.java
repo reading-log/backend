@@ -38,8 +38,8 @@ public class HighlightController {
                                                         @PathVariable Long bookId,
                                                         @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
 
-        Page<HighlightResponse> highlights = highlightService.highlights(user.getId(), bookId, pageable);
-        return Response.success(HttpStatus.OK, "하이라이트 목록 조회 성공", highlights);
+        Page<HighlightResponse> response = highlightService.highlights(user.getId(), bookId, pageable);
+        return Response.success(HttpStatus.OK, "하이라이트 목록 조회 성공", response);
     }
 
     @PostMapping("/{bookId}")

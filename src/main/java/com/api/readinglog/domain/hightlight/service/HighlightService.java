@@ -26,6 +26,7 @@ public class HighlightService {
     private final MemberService memberService;
     private final BookService bookService;
 
+    @Transactional(readOnly = true)
     public Page<HighlightResponse> highlights(Long memberId, Long bookId, Pageable pageable) {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
