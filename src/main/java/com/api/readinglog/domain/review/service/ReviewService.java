@@ -42,6 +42,17 @@ public class ReviewService {
         review.modify(request);
     }
 
+    public void delete(Long memberId, Long reviewId) {
+        Member member = memberService.getMemberById(memberId);
+        Review review = getReviewById(reviewId);
+
+        if (review.getMember() != member) {
+            throw new ReviewException(ErrorCode.FORBIDDEN_DELETE);
+        }
+
+        reviewRepository.delete(review);
+    }
+
     public Review getReviewById(Long reviewId) {
         return reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewException(ErrorCode.NOT_FOUND_REVIEW));
