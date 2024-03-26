@@ -2,10 +2,13 @@ package com.api.readinglog.domain.member.service;
 
 import com.api.readinglog.common.aws.AmazonS3Service;
 import com.api.readinglog.common.exception.ErrorCode;
+import com.api.readinglog.common.exception.custom.JwtException;
 import com.api.readinglog.common.exception.custom.MemberException;
 import com.api.readinglog.common.jwt.JwtToken;
 import com.api.readinglog.common.jwt.JwtTokenProvider;
 import com.api.readinglog.common.oauth.OAuth2RevokeService;
+import com.api.readinglog.common.security.CustomUserDetail;
+import com.api.readinglog.common.security.util.JwtUtils;
 import com.api.readinglog.domain.member.controller.dto.request.DeleteRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
 import com.api.readinglog.domain.member.controller.dto.request.LoginRequest;
@@ -13,14 +16,20 @@ import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequ
 import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.entity.MemberRole;
-import com.api.readinglog.domain.token.repository.AccessTokenRepository;
+import com.api.readinglog.domain.token.repository.RefreshTokenRepository;
+import com.api.readinglog.domain.token.repository.SocialAccessTokenRepository;
 import com.api.readinglog.domain.member.repository.MemberRepository;
+import jakarta.servlet.http.HttpServletResponse;
+import java.util.Collection;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,12 +43,13 @@ import org.springframework.web.multipart.MultipartFile;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final AccessTokenRepository accessTokenRepository;
+    private final SocialAccessTokenRepository socialAccessTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final AmazonS3Service amazonS3Service;
     private final OAuth2RevokeService oAuth2RevokeService;
+    private final JwtUtils jwtUtils;
 
     public void join(JoinRequest request) {
         validateExistingMember(request.getEmail(), request.getNickname());
@@ -56,7 +66,6 @@ public class MemberService {
     public JwtToken login(LoginRequest request) {
         Authentication authentication = getUserAuthentication(request);
         return jwtTokenProvider.generateToken(authentication);
-
     }
 
     public Member getMemberByEmailAndRole(String email, MemberRole role) {
@@ -93,6 +102,10 @@ public class MemberService {
         member.updateProfile(request.getNickname(), updatedFileName);
     }
 
+    public void logout(String token, HttpServletResponse response) {
+        jwtUtils.handleLogout(token, response);
+    }
+
     public void deleteMember(Long memberId, DeleteRequest request) {
         Member member = getMemberById(memberId);
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
@@ -104,13 +117,17 @@ public class MemberService {
     public void deleteSocialMember(Long memberId) {
         Member member = getMemberById(memberId);
 
-        accessTokenRepository.findByMember(member).ifPresent(accessToken -> {
+        socialAccessTokenRepository.findByMember(member).ifPresent(accessToken -> {
             String socialAccessToken = accessToken.getSocialAccessToken();
             revokeSocialAccessToken(member, socialAccessToken);
-            accessTokenRepository.delete(accessToken); // AccessToken 삭제
+            socialAccessTokenRepository.delete(accessToken); // SocialAccessToken 삭제
         });
 
         memberRepository.deleteById(member.getId()); // 회원 정보 삭제
+    }
+
+    public JwtToken reissueToken(String refreshToken) {
+        return jwtTokenProvider.reissueTokenByRefreshToken(refreshToken);
     }
 
     // 소셜 계정 연동 해제 처리를 별도의 메서드로 추출
