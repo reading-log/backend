@@ -33,10 +33,13 @@ public enum ErrorCode {
     NOT_FOUND_SEARCH("검색 결과가 존재하지 않습니다!", HttpStatus.NOT_FOUND),
     NOT_FOUND_BOOK("등록된 책이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
     NOT_FOUND_HIGHLIGHT("등록된 책이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
+    NOT_FOUND_SUMMARY("등록된 한줄평이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
+    NOT_FOUND_FEED("피드 목록이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
 
     // 409
     MEMBER_ALREADY_EXISTS("이미 존재하는 회원입니다.", HttpStatus.CONFLICT),
     NICKNAME_ALREADY_EXISTS("이미 존재하는 닉네임입니다.", HttpStatus.CONFLICT),
+    SUMMARY_ALREADY_EXISTS("한줄평이 이미 존재합니다.", HttpStatus.CONFLICT),
 
     // 500
     INTERNAL_SERVER_ERROR("서버 에러 발생!", HttpStatus.INTERNAL_SERVER_ERROR),
