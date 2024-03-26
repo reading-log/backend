@@ -62,6 +62,13 @@ public class MemberController {
         return Response.success(HttpStatus.OK, "회원 수정 성공!");
     }
 
+    @PostMapping("/logout")
+    public Response<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = extractRefreshToken(request);
+        memberService.logout(refreshToken, response);
+        return Response.success(HttpStatus.OK, "로그아웃 성공!");
+    }
+
     @DeleteMapping("/me")
     public Response<Void> deleteMember(@AuthenticationPrincipal CustomUserDetail user,
                                        @RequestBody DeleteRequest request) {
