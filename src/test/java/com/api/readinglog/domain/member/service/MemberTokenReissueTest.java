@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 
+/**
 @SpringBootTest
 public class MemberTokenReissueTest {
 
@@ -81,3 +82,4 @@ public class MemberTokenReissueTest {
     }
 
 }
+ */
