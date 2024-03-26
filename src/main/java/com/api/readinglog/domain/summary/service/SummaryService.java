@@ -6,6 +6,7 @@ import com.api.readinglog.domain.book.entity.Book;
 import com.api.readinglog.domain.book.service.BookService;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.service.MemberService;
+import com.api.readinglog.domain.summary.controller.dto.request.ModifyRequest;
 import com.api.readinglog.domain.summary.controller.dto.request.WriteRequest;
 import com.api.readinglog.domain.summary.entity.Summary;
 import com.api.readinglog.domain.summary.repository.SummaryRepository;
@@ -33,5 +34,21 @@ public class SummaryService {
 
         Summary summary = Summary.of(member, book, request);
         summaryRepository.save(summary);
+    }
+
+    public void modify(Long memberId, Long summaryId, ModifyRequest request) {
+        Member member = memberService.getMemberById(memberId);
+        Summary summary = getSummaryById(summaryId);
+
+        if (summary.getMember() != member) {
+            throw new SummaryException(ErrorCode.FORBIDDEN_MODIFY);
+        }
+
+        summary.modify(request);
+    }
+
+    public Summary getSummaryById(Long summaryId) {
+        return summaryRepository.findById(summaryId)
+                .orElseThrow(() -> new SummaryException(ErrorCode.NOT_FOUND_SUMMARY));
     }
 }
