@@ -3,6 +3,7 @@ package com.api.readinglog.domain.review.entity;
 import com.api.readinglog.common.base.BaseTimeEntity;
 import com.api.readinglog.domain.book.entity.Book;
 import com.api.readinglog.domain.member.entity.Member;
+import com.api.readinglog.domain.review.controller.dto.request.ModifyRequest;
 import com.api.readinglog.domain.review.controller.dto.request.WriteRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -56,5 +57,7 @@ public class Review extends BaseTimeEntity {
                 .build();
     }
 
-
+    public void modify(ModifyRequest request) {
+        this.content = request.getContent();
+    }
 }
