@@ -8,6 +8,7 @@ import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.service.MemberService;
 import com.api.readinglog.domain.summary.controller.dto.request.ModifyRequest;
 import com.api.readinglog.domain.summary.controller.dto.request.WriteRequest;
+import com.api.readinglog.domain.summary.controller.dto.response.SummaryResponse;
 import com.api.readinglog.domain.summary.entity.Summary;
 import com.api.readinglog.domain.summary.repository.SummaryRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,18 @@ public class SummaryService {
     private final SummaryRepository summaryRepository;
     private final MemberService memberService;
     private final BookService bookService;
+
+    @Transactional(readOnly = true)
+    public SummaryResponse mySummary(Long memberId, Long bookId) {
+        Member member = memberService.getMemberById(memberId);
+        Book book = bookService.getBookById(bookId);
+
+        // 해당 책에 대한 한줄평이 존재하면 반환
+        Summary summary = summaryRepository.findByMemberAndBook(member, book)
+                .orElseThrow(() -> new SummaryException(ErrorCode.NOT_FOUND_SUMMARY));
+
+        return SummaryResponse.fromEntity(summary);
+    }
 
     public void write(Long memberId, Long bookId, WriteRequest request) {
         Member member = memberService.getMemberById(memberId);

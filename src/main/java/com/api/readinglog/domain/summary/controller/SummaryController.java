@@ -4,12 +4,14 @@ import com.api.readinglog.common.response.Response;
 import com.api.readinglog.common.security.CustomUserDetail;
 import com.api.readinglog.domain.summary.controller.dto.request.ModifyRequest;
 import com.api.readinglog.domain.summary.controller.dto.request.WriteRequest;
+import com.api.readinglog.domain.summary.controller.dto.response.SummaryResponse;
 import com.api.readinglog.domain.summary.service.SummaryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class SummaryController {
 
     private final SummaryService summaryService;
+
+    @GetMapping("/{bookId}/me")
+    public Response<SummaryResponse> mySummary(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long bookId) {
+
+        SummaryResponse response = summaryService.mySummary(user.getId(), bookId);
+        return Response.success(HttpStatus.OK, "내 한줄평 조회 성공", response);
+    }
 
     @PostMapping("/{bookId}")
     public Response<Void> write(@AuthenticationPrincipal CustomUserDetail user,
