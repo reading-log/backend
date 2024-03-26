@@ -34,6 +34,7 @@ public enum ErrorCode {
     NOT_FOUND_BOOK("등록된 책이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
     NOT_FOUND_HIGHLIGHT("등록된 책이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
     NOT_FOUND_SUMMARY("등록된 한줄평이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
+    NOT_FOUND_FEED("피드 목록이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
 
     // 409
     MEMBER_ALREADY_EXISTS("이미 존재하는 회원입니다.", HttpStatus.CONFLICT),

@@ -9,15 +9,23 @@ import lombok.Getter;
 @Builder
 public class SummaryResponse {
 
+    private String nickname;
+    private String bookTitle;
+    private String bookAuthor;
+    private String bookCover;
     private String content;
     private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    // TODO: 좋아요 개수
+
 
     public static SummaryResponse fromEntity(Summary summary) {
         return SummaryResponse.builder()
+                .nickname(summary.getMember().getNickname())
+                .bookTitle(summary.getBook().getTitle())
+                .bookAuthor(summary.getBook().getAuthor())
+                .bookCover(summary.getBook().getCover())
                 .content(summary.getContent())
                 .createdAt(summary.getCreatedAt())
-                .modifiedAt(summary.getModifiedAt())
                 .build();
     }
 }

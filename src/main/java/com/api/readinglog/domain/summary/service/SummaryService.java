@@ -9,9 +9,12 @@ import com.api.readinglog.domain.member.service.MemberService;
 import com.api.readinglog.domain.summary.controller.dto.request.ModifyRequest;
 import com.api.readinglog.domain.summary.controller.dto.request.WriteRequest;
 import com.api.readinglog.domain.summary.controller.dto.response.SummaryResponse;
+import com.api.readinglog.domain.summary.controller.dto.response.MySummaryResponse;
 import com.api.readinglog.domain.summary.entity.Summary;
 import com.api.readinglog.domain.summary.repository.SummaryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +28,19 @@ public class SummaryService {
     private final BookService bookService;
 
     @Transactional(readOnly = true)
-    public SummaryResponse mySummary(Long memberId, Long bookId) {
+    public Page<SummaryResponse> feed(Pageable pageable) {
+        Page<SummaryResponse> feed = summaryRepository.findAllBy(pageable).map(SummaryResponse::fromEntity);
+
+        // 피드가 존재하지 않는 경우 예외 처리
+        if (feed.getContent().isEmpty()) {
+            throw new SummaryException(ErrorCode.NOT_FOUND_FEED);
+        }
+
+        return feed;
+    }
+
+    @Transactional(readOnly = true)
+    public MySummaryResponse mySummary(Long memberId, Long bookId) {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
 
@@ -33,7 +48,7 @@ public class SummaryService {
         Summary summary = summaryRepository.findByMemberAndBook(member, book)
                 .orElseThrow(() -> new SummaryException(ErrorCode.NOT_FOUND_SUMMARY));
 
-        return SummaryResponse.fromEntity(summary);
+        return MySummaryResponse.fromEntity(summary);
     }
 
     public void write(Long memberId, Long bookId, WriteRequest request) {
@@ -75,4 +90,5 @@ public class SummaryService {
         return summaryRepository.findById(summaryId)
                 .orElseThrow(() -> new SummaryException(ErrorCode.NOT_FOUND_SUMMARY));
     }
+
 }
