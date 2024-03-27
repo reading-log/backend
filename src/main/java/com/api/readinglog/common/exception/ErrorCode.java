@@ -19,6 +19,7 @@ public enum ErrorCode {
     NOT_FOUND_TOKEN("토큰을 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED),
     NOT_FOUND_REFRESH_TOKEN("해당 사용자의 리프레시 토큰을 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED),
     INVALID_CURRENT_PASSWORD("현재 비밀번호와 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_AUTH_CODE("이메일 인증에 실패했습니다.", HttpStatus.BAD_REQUEST),
 
     // 400
     EMPTY_SEARCH_KEYWORD("검색어를 입력해주세요!", HttpStatus.BAD_REQUEST),
@@ -46,7 +47,8 @@ public enum ErrorCode {
     // 500
     INTERNAL_SERVER_ERROR("서버 에러 발생!", HttpStatus.INTERNAL_SERVER_ERROR),
     AWS_S3_FILE_UPLOAD_FAIL("AWS S3 파일 업로드 실패", HttpStatus.INTERNAL_SERVER_ERROR),
-    AWS_S3_FILE_DELETE_FAIL("AWS S3 파일 삭제 실패", HttpStatus.INTERNAL_SERVER_ERROR),;
+    AWS_S3_FILE_DELETE_FAIL("AWS S3 파일 삭제 실패", HttpStatus.INTERNAL_SERVER_ERROR),
+    EMAIL_SEND_FAILED("이메일 발송 실패", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String message;
     private final HttpStatus status;
