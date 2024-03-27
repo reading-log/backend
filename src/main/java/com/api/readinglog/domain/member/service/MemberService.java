@@ -11,6 +11,7 @@ import com.api.readinglog.domain.member.controller.dto.request.DeleteRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinNicknameRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
 import com.api.readinglog.domain.member.controller.dto.request.LoginRequest;
+import com.api.readinglog.domain.member.controller.dto.request.UpdatePasswordRequest;
 import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequest;
 import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.entity.Member;
@@ -127,6 +128,17 @@ public class MemberService {
 
     public JwtToken reissueToken(String refreshToken) {
         return jwtTokenProvider.reissueTokenByRefreshToken(refreshToken);
+    }
+
+    public void updatePassword(Long memberId, UpdatePasswordRequest request) {
+        Member member = getMemberById(memberId);
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
+            throw new MemberException(ErrorCode.INVALID_CURRENT_PASSWORD);
+        }
+
+        validatePassword(request.getNewPassword(), request.getNewPasswordConfirm());
+        member.updatePassword(passwordEncoder.encode(request.getNewPassword()));
     }
 
     // 소셜 계정 연동 해제 처리를 별도의 메서드로 추출

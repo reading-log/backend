@@ -18,6 +18,7 @@ public enum ErrorCode {
     UNSUPPORTED_TOKEN("지원하지 않는 형식의 토큰입니다.", HttpStatus.UNAUTHORIZED),
     NOT_FOUND_TOKEN("토큰을 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED),
     NOT_FOUND_REFRESH_TOKEN("해당 사용자의 리프레시 토큰을 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED),
+    INVALID_CURRENT_PASSWORD("현재 비밀번호와 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
 
     // 400
     EMPTY_SEARCH_KEYWORD("검색어를 입력해주세요!", HttpStatus.BAD_REQUEST),

@@ -8,6 +8,7 @@ import com.api.readinglog.domain.member.controller.dto.request.DeleteRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinNicknameRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
 import com.api.readinglog.domain.member.controller.dto.request.LoginRequest;
+import com.api.readinglog.domain.member.controller.dto.request.UpdatePasswordRequest;
 import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequest;
 import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.service.MemberService;
@@ -100,7 +101,14 @@ public class MemberController {
         // 재발급된 토큰 반환
         response.addHeader("Authorization", newToken.getAccessToken());
         CookieUtils.addCookie(response, "refreshToken", newToken.getRefreshToken(), 24 * 60 * 60 * 7);
-        return Response.success(HttpStatus.OK,  "토큰 재발급 성공!");
+        return Response.success(HttpStatus.OK, "토큰 재발급 성공!");
+    }
+
+    @PatchMapping("/password")
+    public Response<Void> updatePassword(@AuthenticationPrincipal CustomUserDetail user,
+                                         @RequestBody @Valid UpdatePasswordRequest request) {
+        memberService.updatePassword(user.getId(), request);
+        return Response.success(HttpStatus.OK, "비밀번호 변경 성공!");
     }
 
     // HttpServletRequest에서 리프레시 토큰을 추출하는 메서드
