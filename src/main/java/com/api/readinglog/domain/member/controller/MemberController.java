@@ -127,6 +127,13 @@ public class MemberController {
         return Response.success(HttpStatus.OK, "이메일 인증 성공!");
     }
 
+    @PostMapping("/send-temporaryPassword")
+    public Response<Void> sendEmailTempPassword(@AuthenticationPrincipal CustomUserDetail user,
+                                                @RequestBody @Valid EmailRequest request) {
+        emailService.sendTemporaryPassword(user.getId(), request.getEmail());
+        return Response.success(HttpStatus.OK, "임시 비밀번호 전송 완료!");
+    }
+
     // HttpServletRequest에서 리프레시 토큰을 추출하는 메서드
     private String extractRefreshToken(HttpServletRequest request) {
         // 쿠키에서 리프레`시 토큰 이름으로 검색
