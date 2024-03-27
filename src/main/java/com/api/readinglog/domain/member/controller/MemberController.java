@@ -5,6 +5,7 @@ import com.api.readinglog.common.response.Response;
 import com.api.readinglog.common.security.CustomUserDetail;
 import com.api.readinglog.common.security.util.CookieUtils;
 import com.api.readinglog.domain.member.controller.dto.request.DeleteRequest;
+import com.api.readinglog.domain.member.controller.dto.request.JoinNicknameRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
 import com.api.readinglog.domain.member.controller.dto.request.LoginRequest;
 import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequest;
@@ -34,6 +35,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
+
+    @PostMapping("/join-nickname")
+    public Response<Void> join_nickname(@ModelAttribute @Valid JoinNicknameRequest request) {
+        memberService.joinNickname(request);
+        return Response.success(HttpStatus.OK, "닉네임 검사 통과!");
+    }
 
     @PostMapping("/join")
     public Response<Void> join(@ModelAttribute @Valid JoinRequest request) {
