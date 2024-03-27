@@ -157,7 +157,7 @@ public class MemberService {
     }
 
     private void validateExistingNickname(String nickname) {
-        if(memberRepository.findByNickname(nickname).isPresent()) {
+        if (memberRepository.findByNickname(nickname).isPresent()) {
             throw new MemberException(ErrorCode.NICKNAME_ALREADY_EXISTS);
         }
     }

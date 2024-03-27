@@ -4,6 +4,9 @@ import com.api.readinglog.common.jwt.JwtToken;
 import com.api.readinglog.common.response.Response;
 import com.api.readinglog.common.security.CustomUserDetail;
 import com.api.readinglog.common.security.util.CookieUtils;
+import com.api.readinglog.domain.email.dto.AuthCodeVerificationRequest;
+import com.api.readinglog.domain.email.dto.EmailRequest;
+import com.api.readinglog.domain.email.service.EmailService;
 import com.api.readinglog.domain.member.controller.dto.request.DeleteRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinNicknameRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
+    private final EmailService emailService;
 
     @PostMapping("/join-nickname")
     public Response<Void> join_nickname(@ModelAttribute @Valid JoinNicknameRequest request) {
@@ -109,6 +113,18 @@ public class MemberController {
                                          @RequestBody @Valid UpdatePasswordRequest request) {
         memberService.updatePassword(user.getId(), request);
         return Response.success(HttpStatus.OK, "비밀번호 변경 성공!");
+    }
+
+    @PostMapping("/send-authCode")
+    public Response<Void> sendEmailAuthCode(@RequestBody @Valid EmailRequest request) {
+        emailService.sendAuthCode(request.getEmail());
+        return Response.success(HttpStatus.OK, "이메일 인증 코드 전송 완료!");
+    }
+
+    @PostMapping("/verify-authCode")
+    public Response<Void> verifyAuthCode(@RequestBody @Valid AuthCodeVerificationRequest request) {
+        emailService.verifyAuthCode(request.getEmail(), request.getAuthCode());
+        return Response.success(HttpStatus.OK, "이메일 인증 성공!");
     }
 
     // HttpServletRequest에서 리프레시 토큰을 추출하는 메서드
