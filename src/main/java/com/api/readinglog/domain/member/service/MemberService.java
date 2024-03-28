@@ -2,34 +2,29 @@ package com.api.readinglog.domain.member.service;
 
 import com.api.readinglog.common.aws.AmazonS3Service;
 import com.api.readinglog.common.exception.ErrorCode;
-import com.api.readinglog.common.exception.custom.JwtException;
 import com.api.readinglog.common.exception.custom.MemberException;
 import com.api.readinglog.common.jwt.JwtToken;
 import com.api.readinglog.common.jwt.JwtTokenProvider;
 import com.api.readinglog.common.oauth.OAuth2RevokeService;
-import com.api.readinglog.common.security.CustomUserDetail;
 import com.api.readinglog.common.security.util.JwtUtils;
 import com.api.readinglog.domain.member.controller.dto.request.DeleteRequest;
+import com.api.readinglog.domain.member.controller.dto.request.JoinNicknameRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
 import com.api.readinglog.domain.member.controller.dto.request.LoginRequest;
+import com.api.readinglog.domain.member.controller.dto.request.UpdatePasswordRequest;
 import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequest;
 import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.entity.MemberRole;
-import com.api.readinglog.domain.token.repository.RefreshTokenRepository;
 import com.api.readinglog.domain.token.repository.SocialAccessTokenRepository;
 import com.api.readinglog.domain.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Collection;
-import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -51,8 +46,13 @@ public class MemberService {
     private final OAuth2RevokeService oAuth2RevokeService;
     private final JwtUtils jwtUtils;
 
+    public void joinNickname(JoinNicknameRequest request) {
+        validateExistingNickname(request.getNickname());
+    }
+
     public void join(JoinRequest request) {
-        validateExistingMember(request.getEmail(), request.getNickname());
+        validateExistingMember(request.getEmail());
+        validateExistingNickname(request.getNickname());
         validatePassword(request.getPassword(), request.getPasswordConfirm());
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
@@ -130,6 +130,17 @@ public class MemberService {
         return jwtTokenProvider.reissueTokenByRefreshToken(refreshToken);
     }
 
+    public void updatePassword(Long memberId, UpdatePasswordRequest request) {
+        Member member = getMemberById(memberId);
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
+            throw new MemberException(ErrorCode.INVALID_CURRENT_PASSWORD);
+        }
+
+        validatePassword(request.getNewPassword(), request.getNewPasswordConfirm());
+        member.updatePassword(passwordEncoder.encode(request.getNewPassword()));
+    }
+
     // 소셜 계정 연동 해제 처리를 별도의 메서드로 추출
     private void revokeSocialAccessToken(Member member, String socialAccessToken) {
         switch (member.getRole()) {
@@ -139,11 +150,13 @@ public class MemberService {
         }
     }
 
-    private void validateExistingMember(String email, String nickname) {
+    private void validateExistingMember(String email) {
         if (memberRepository.findByEmailAndRole(email, MemberRole.MEMBER_NORMAL).isPresent()) {
             throw new MemberException(ErrorCode.MEMBER_ALREADY_EXISTS);
         }
+    }
 
+    private void validateExistingNickname(String nickname) {
         if (memberRepository.findByNickname(nickname).isPresent()) {
             throw new MemberException(ErrorCode.NICKNAME_ALREADY_EXISTS);
         }

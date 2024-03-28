@@ -4,9 +4,14 @@ import com.api.readinglog.common.jwt.JwtToken;
 import com.api.readinglog.common.response.Response;
 import com.api.readinglog.common.security.CustomUserDetail;
 import com.api.readinglog.common.security.util.CookieUtils;
+import com.api.readinglog.domain.email.dto.AuthCodeVerificationRequest;
+import com.api.readinglog.domain.email.dto.EmailRequest;
+import com.api.readinglog.domain.email.service.EmailService;
 import com.api.readinglog.domain.member.controller.dto.request.DeleteRequest;
+import com.api.readinglog.domain.member.controller.dto.request.JoinNicknameRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
 import com.api.readinglog.domain.member.controller.dto.request.LoginRequest;
+import com.api.readinglog.domain.member.controller.dto.request.UpdatePasswordRequest;
 import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequest;
 import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.service.MemberService;
@@ -34,6 +39,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
+    private final EmailService emailService;
+
+    @PostMapping("/join-nickname")
+    public Response<Void> join_nickname(@ModelAttribute @Valid JoinNicknameRequest request) {
+        memberService.joinNickname(request);
+        return Response.success(HttpStatus.OK, "닉네임 검사 통과!");
+    }
 
     @PostMapping("/join")
     public Response<Void> join(@ModelAttribute @Valid JoinRequest request) {
@@ -93,7 +105,33 @@ public class MemberController {
         // 재발급된 토큰 반환
         response.addHeader("Authorization", newToken.getAccessToken());
         CookieUtils.addCookie(response, "refreshToken", newToken.getRefreshToken(), 24 * 60 * 60 * 7);
-        return Response.success(HttpStatus.OK,  "토큰 재발급 성공!");
+        return Response.success(HttpStatus.OK, "토큰 재발급 성공!");
+    }
+
+    @PatchMapping("/password")
+    public Response<Void> updatePassword(@AuthenticationPrincipal CustomUserDetail user,
+                                         @RequestBody @Valid UpdatePasswordRequest request) {
+        memberService.updatePassword(user.getId(), request);
+        return Response.success(HttpStatus.OK, "비밀번호 변경 성공!");
+    }
+
+    @PostMapping("/send-authCode")
+    public Response<Void> sendEmailAuthCode(@RequestBody @Valid EmailRequest request) {
+        emailService.sendAuthCode(request.getEmail());
+        return Response.success(HttpStatus.OK, "이메일 인증 코드 전송 완료!");
+    }
+
+    @PostMapping("/verify-authCode")
+    public Response<Void> verifyAuthCode(@RequestBody @Valid AuthCodeVerificationRequest request) {
+        emailService.verifyAuthCode(request.getEmail(), request.getAuthCode());
+        return Response.success(HttpStatus.OK, "이메일 인증 성공!");
+    }
+
+    @PostMapping("/send-temporaryPassword")
+    public Response<Void> sendEmailTempPassword(@AuthenticationPrincipal CustomUserDetail user,
+                                                @RequestBody @Valid EmailRequest request) {
+        emailService.sendTemporaryPassword(user.getId(), request.getEmail());
+        return Response.success(HttpStatus.OK, "임시 비밀번호 전송 완료!");
     }
 
     // HttpServletRequest에서 리프레시 토큰을 추출하는 메서드
