@@ -1,8 +1,10 @@
 package com.api.readinglog.domain.member.service;
 
 import com.api.readinglog.common.aws.AmazonS3Service;
+import com.api.readinglog.common.aws.DomainType;
 import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.MemberException;
+import com.api.readinglog.common.image.ImageUtil;
 import com.api.readinglog.common.jwt.JwtToken;
 import com.api.readinglog.common.jwt.JwtTokenProvider;
 import com.api.readinglog.common.oauth.OAuth2RevokeService;
@@ -91,10 +93,10 @@ public class MemberService {
 
         String updatedFileName = member.getProfileImg();
 
-        if (!isEmptyProfileImg(request.getProfileImg())) {
+        if (ImageUtil.isNotEmptyImageFile(request.getProfileImg())) {
             // 수정할 이미지 데이터가 존재할 경우, 기존 이미지 삭제 후 새 이미지 업로드
             amazonS3Service.deleteFile(member.getProfileImg());
-            updatedFileName = amazonS3Service.uploadFile(request.getProfileImg());
+            updatedFileName = amazonS3Service.uploadFile(request.getProfileImg(), DomainType.MEMBERS);
         }
         member.updateProfile(request.getNickname(), updatedFileName);
     }
@@ -178,11 +180,8 @@ public class MemberService {
         if (profileImg == null || profileImg.isEmpty()) {
             return amazonS3Service.getDefaultProfileImg();
         } else {
-            return amazonS3Service.uploadFile(profileImg);
+            return amazonS3Service.uploadFile(profileImage, DomainType.MEMBERS);
         }
     }
-
-    private boolean isEmptyProfileImg(MultipartFile profileImg) {
-        return (profileImg == null || profileImg.isEmpty());
-    }
+  
 }
