@@ -56,10 +56,9 @@ public class MemberService {
         validatePassword(request.getPassword(), request.getPasswordConfirm());
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-        String uploadFileName = determineProfileImageUrl(request.getProfileImage());
+        String uploadFileName = determineProfileImgUrl(request.getProfileImage());
 
         Member member = Member.of(request, encodedPassword, uploadFileName);
-        log.debug("회원 프로필 사진 이름: {}", uploadFileName);
         memberRepository.save(member);
     }
 
@@ -81,7 +80,6 @@ public class MemberService {
         Member member = getMemberById(memberId);
         String profileImg = member.getProfileImg();
 
-        // 소셜 로그인 한 회원이 아닌 경우에만 S3에서 이미지 객체 URL을 가져옴
         if (member.getRole().equals(MemberRole.MEMBER_NORMAL)) {
             profileImg = amazonS3Service.getFileUrl(member.getProfileImg());
         }
@@ -91,7 +89,6 @@ public class MemberService {
     public void updateProfile(Long memberId, UpdateProfileRequest request) {
         Member member = getMemberById(memberId);
 
-        // 기존 이미지를 기본 값으로 설정
         String updatedFileName = member.getProfileImg();
 
         if (!isEmptyProfileImg(request.getProfileImg())) {
@@ -141,7 +138,6 @@ public class MemberService {
         member.updatePassword(passwordEncoder.encode(request.getNewPassword()));
     }
 
-    // 소셜 계정 연동 해제 처리를 별도의 메서드로 추출
     private void revokeSocialAccessToken(Member member, String socialAccessToken) {
         switch (member.getRole()) {
             case MEMBER_KAKAO -> oAuth2RevokeService.revokeKakao(socialAccessToken);
@@ -178,12 +174,11 @@ public class MemberService {
         }
     }
 
-    private String determineProfileImageUrl(MultipartFile profileImage) {
-        /* TODO: 프로필 사진 요청이 없는 경우, 기본 프로필 저장 */
-        if (profileImage == null || profileImage.isEmpty()) {
-            return "기본 프로필 이미지 URL";
+    private String determineProfileImgUrl(MultipartFile profileImg) {
+        if (profileImg == null || profileImg.isEmpty()) {
+            return amazonS3Service.getDefaultProfileImg();
         } else {
-            return amazonS3Service.uploadFile(profileImage);
+            return amazonS3Service.uploadFile(profileImg);
         }
     }
 
