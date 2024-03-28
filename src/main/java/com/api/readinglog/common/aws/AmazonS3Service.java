@@ -10,6 +10,7 @@ import com.api.readinglog.common.exception.custom.AwsS3Exception;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,10 @@ public class AmazonS3Service {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
+    @Getter
+    @Value("${cloud.aws.s3.default.profile.image}")
+    private String defaultProfileImg;
 
     public String uploadFile(MultipartFile profileImg) {
         String fileName = generateFileName(profileImg.getOriginalFilename());
