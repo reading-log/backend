@@ -51,15 +51,14 @@ public class BookService {
             throw new BookException(ErrorCode.EMPTY_SEARCH_KEYWORD);
         }
 
-        // TODO: 독서 기록이 있는 책인 경우 독서 기록도 응답에 포함시켜 전달.
         BookSearchApiResponse response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/ItemSearch.aspx")
-                        .queryParam("Query", query) // 검색어
-                        .queryParam("QueryType", "Keyword") // 제목 + 저자로 검색
+                        .queryParam("Query", query)
+                        .queryParam("QueryType", "Title") // 제목으로 검색
                         .queryParam("SearchTarget", "Book") // 검색 대상: 도서
                         .queryParam("Start", start) // 시작 페이지: 1
-                        .queryParam("MaxResults", "20") // 페이지 당 검색 결과: 20개
+                        .queryParam("MaxResults", "10") // 페이지 당 검색 결과: 10개
                         .queryParam("Sort", "Accuracy") // 관련도순 정렬
                         .build()
                 )

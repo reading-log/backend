@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 public class BookSearchApiResponse {
 
-    // TODO: 무한 스크롤 구현에 필요한 데이터 추가
     private int totalResults; // 전체 데이터 개수
     private int startIndex; // 시작 페이지
     private int itemsPerPage; // 페이지당 아이템 개수
