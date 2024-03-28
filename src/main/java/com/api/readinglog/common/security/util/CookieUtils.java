@@ -1,26 +1,14 @@
 package com.api.readinglog.common.security.util;
 
+import com.api.readinglog.common.exception.ErrorCode;
+import com.api.readinglog.common.exception.custom.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Base64;
-import java.util.Optional;
 import org.springframework.util.SerializationUtils;
 
 public class CookieUtils {
-
-    public static Optional<Cookie> getCookie(HttpServletRequest request, String name) {
-        Cookie[] cookies = request.getCookies();
-
-        if (cookies != null && cookies.length > 0) {
-            for (Cookie cookie : cookies) {
-                if (name.equals(cookie.getName())) {
-                    return Optional.of(cookie);
-                }
-            }
-        }
-        return Optional.empty();
-    }
 
     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
@@ -31,19 +19,16 @@ public class CookieUtils {
         response.addCookie(cookie);
     }
 
-    public static void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
+    public static String extractRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-
-        if (cookies != null && cookies.length > 0) {
+        if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (name.equals(cookie.getName())) {
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    response.addCookie(cookie);
+                if (cookie.getName().equals("refreshToken")) {
+                    return cookie.getValue();
                 }
             }
         }
+        throw new JwtException(ErrorCode.NOT_FOUND_REFRESH_TOKEN_IN_COOKIE);
     }
 
     public static String serialize(Object obj) {
