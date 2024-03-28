@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 @Slf4j
+@EnableAsync
 @RequiredArgsConstructor
 @Transactional
 public class EmailService {
@@ -33,20 +36,20 @@ public class EmailService {
     private final EmailAuthRepository emailAuthRepository;
     private final PasswordEncoder passwordEncoder;
 
-
+    @Async
     public void sendAuthCode(String toEmail) {
         String authCode = createRandomCode();
         emailAuthRepository.save(EmailAuth.of(toEmail, authCode));
         sendEmail(toEmail, authCode, "[리딩 로그] 이메일 인증 코드", "authCode.html");
     }
 
+    @Async
     public void sendTemporaryPassword(Long memberId, String toEmail) {
         String tempPassword = createRandomCode();
         sendEmail(toEmail, tempPassword, "[리딩 로그] 임시 비밀번호", "tempPassword.html");
 
         Member member = memberService.getMemberById(memberId);
         member.updatePassword(passwordEncoder.encode(tempPassword));
-        log.info("새로 발급 받은 비밀번호: {}", tempPassword);
     }
 
     @Scheduled(fixedDelay = 60000)
@@ -54,7 +57,8 @@ public class EmailService {
         emailAuthRepository.deleteByExpiryTimeBefore(LocalDateTime.now());
     }
 
-    private void sendEmail(String toEmail, String code, String subject, String templateName) {
+    @Async
+    public void sendEmail(String toEmail, String code, String subject, String templateName) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
