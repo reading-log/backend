@@ -2,21 +2,20 @@ package com.api.readinglog.domain.email.service;
 
 import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.EmailException;
-import com.api.readinglog.domain.email.entity.EmailAuth;
-import com.api.readinglog.domain.email.repository.EmailAuthRepository;
+import com.api.readinglog.common.redis.service.RedisService;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.service.MemberService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,13 +32,13 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
     private final MemberService memberService;
-    private final EmailAuthRepository emailAuthRepository;
+    private final RedisService redisService;
     private final PasswordEncoder passwordEncoder;
 
     @Async
     public void sendAuthCode(String toEmail) {
         String authCode = createRandomCode();
-        emailAuthRepository.save(EmailAuth.of(toEmail, authCode));
+        saveAuthCode(toEmail, authCode);
         sendEmail(toEmail, authCode, "[리딩 로그] 이메일 인증 코드", "authCode.html");
     }
 
@@ -50,11 +49,6 @@ public class EmailService {
 
         Member member = memberService.getMemberById(memberId);
         member.updatePassword(passwordEncoder.encode(tempPassword));
-    }
-
-    @Scheduled(fixedDelay = 60000)
-    public void deleteExpiredAuthCodes() {
-        emailAuthRepository.deleteByExpiryTimeBefore(LocalDateTime.now());
     }
 
     @Async
@@ -74,7 +68,8 @@ public class EmailService {
     }
 
     public void verifyAuthCode(String email, String authCode) {
-        emailAuthRepository.findByEmailAndAuthCode(email, authCode)
+        findByEmailAndAuthCode(authCode)
+                .filter(e -> e.equals(email))
                 .orElseThrow(() -> new EmailException(ErrorCode.INVALID_AUTH_CODE));
     }
 
@@ -105,5 +100,13 @@ public class EmailService {
         return templateEngine.process(templateName, context);
     }
 
+    private void saveAuthCode(String email, String authCode) {
+        redisService.setData(authCode, email, 5L, TimeUnit.MINUTES); // 5분 설정
+    }
+
+    private Optional<String> findByEmailAndAuthCode(String authCode) {
+        Object email = redisService.getData(authCode);
+        return Optional.ofNullable(email != null ? email.toString() : null);
+    }
 }
 
