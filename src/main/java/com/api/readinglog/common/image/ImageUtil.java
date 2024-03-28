@@ -14,8 +14,8 @@ public class ImageUtil {
     }
 
     // 이미지 존재 여부 확인
-    public static boolean isEmptyProfileImg(MultipartFile file) {
-        return (file == null || file.isEmpty());
+    public static boolean isNotEmptyImageFile(MultipartFile file) {
+        return !(file == null || file.isEmpty());
     }
 
 }

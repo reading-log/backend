@@ -93,10 +93,10 @@ public class BookService {
         Member member = memberService.getMemberById(memberId);
         Book book = getBookById(bookId);
 
-        // 파일이 존재하면 기존 이미지 삭제 후 새로운 이미지 업로드
         String cover = book.getCover();
 
-        if (!ImageUtil.isEmptyProfileImg(bookModifyRequest.getCover())) {
+        // 파일이 존재하면 기존 이미지 삭제 후 새로운 이미지 업로드
+        if (ImageUtil.isNotEmptyImageFile(bookModifyRequest.getCover())) {
             amazonS3Service.deleteFile(cover);
             cover = amazonS3Service.uploadFile(bookModifyRequest.getCover(), DomainType.BOOK);
         }

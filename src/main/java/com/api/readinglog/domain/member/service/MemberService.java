@@ -96,7 +96,7 @@ public class MemberService {
         // 기존 이미지를 기본 값으로 설정
         String updatedFileName = member.getProfileImg();
 
-        if (!ImageUtil.isEmptyProfileImg(request.getProfileImg())) {
+        if (ImageUtil.isNotEmptyImageFile(request.getProfileImg())) {
             // 수정할 이미지 데이터가 존재할 경우, 기존 이미지 삭제 후 새 이미지 업로드
             amazonS3Service.deleteFile(member.getProfileImg());
             updatedFileName = amazonS3Service.uploadFile(request.getProfileImg(), DomainType.MEMBERS);
