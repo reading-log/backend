@@ -15,7 +15,6 @@ import com.api.readinglog.domain.member.controller.dto.request.UpdatePasswordReq
 import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequest;
 import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.service.MemberService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -76,7 +75,7 @@ public class MemberController {
 
     @PostMapping("/logout")
     public Response<Void> logout(HttpServletRequest request, HttpServletResponse response) {
-        String refreshToken = extractRefreshToken(request);
+        String refreshToken = CookieUtils.extractRefreshToken(request);
         memberService.logout(refreshToken, response);
         return Response.success(HttpStatus.OK, "로그아웃 성공!");
     }
@@ -96,13 +95,8 @@ public class MemberController {
 
     @GetMapping("/reissue")
     public Response<Void> reissue(HttpServletRequest request, HttpServletResponse response) {
-        // 쿠키에서 리프레시 토큰 가져오기
-        String refreshToken = extractRefreshToken(request);
-
-        // 리프레시 토큰을 사용하여 새로운 토큰 재발급
+        String refreshToken = CookieUtils.extractRefreshToken(request);
         JwtToken newToken = memberService.reissueToken(refreshToken);
-
-        // 재발급된 토큰 반환
         response.addHeader("Authorization", newToken.getAccessToken());
         CookieUtils.addCookie(response, "refreshToken", newToken.getRefreshToken(), 24 * 60 * 60 * 7);
         return Response.success(HttpStatus.OK, "토큰 재발급 성공!");
@@ -132,19 +126,5 @@ public class MemberController {
                                                 @RequestBody @Valid EmailRequest request) {
         emailService.sendTemporaryPassword(user.getId(), request.getEmail());
         return Response.success(HttpStatus.OK, "임시 비밀번호 전송 완료!");
-    }
-
-    // HttpServletRequest에서 리프레시 토큰을 추출하는 메서드
-    private String extractRefreshToken(HttpServletRequest request) {
-        // 쿠키에서 리프레`시 토큰 이름으로 검색
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("refreshToken")) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        throw new IllegalStateException("리프레시 토큰이 쿠키에 없습니다.");
     }
 }

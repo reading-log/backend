@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,8 +29,12 @@ public class AmazonS3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public String uploadFile(MultipartFile file, DomainType type) {
+    @Getter
+    @Value("${cloud.aws.s3.default.profile.image}")
+    private String defaultProfileImg;
 
+    public String uploadFile(MultipartFile file, DomainType type) {
+      
         String ext = ImageUtil.getExt(file.getOriginalFilename()); // 확장자
         String fileName = UUID.randomUUID() + "." + ext; // 파일 이름 + 확장자
         String imageFilePath = generateFilePath(fileName, type); // 타입/날짜/파일이름

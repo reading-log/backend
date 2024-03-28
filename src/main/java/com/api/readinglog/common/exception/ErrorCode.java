@@ -10,6 +10,9 @@ public enum ErrorCode {
 
     // 400
     PASSWORD_MISMATCH("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_CURRENT_PASSWORD("현재 비밀번호와 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_AUTH_CODE("이메일 인증에 실패했습니다.", HttpStatus.BAD_REQUEST),
+    NOT_FOUND_REFRESH_TOKEN_IN_COOKIE("리프레시 토큰이 쿠키에 없습니다.", HttpStatus.BAD_REQUEST),
 
     // 401
     UNAUTHORIZED_LOGIN("로그인 실패: 인증에 실패하였습니다.", HttpStatus.UNAUTHORIZED),
@@ -18,8 +21,6 @@ public enum ErrorCode {
     UNSUPPORTED_TOKEN("지원하지 않는 형식의 토큰입니다.", HttpStatus.UNAUTHORIZED),
     NOT_FOUND_TOKEN("토큰을 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED),
     NOT_FOUND_REFRESH_TOKEN("해당 사용자의 리프레시 토큰을 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED),
-    INVALID_CURRENT_PASSWORD("현재 비밀번호와 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
-    INVALID_AUTH_CODE("이메일 인증에 실패했습니다.", HttpStatus.BAD_REQUEST),
 
     // 400
     EMPTY_SEARCH_KEYWORD("검색어를 입력해주세요!", HttpStatus.BAD_REQUEST),
