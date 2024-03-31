@@ -180,7 +180,7 @@ public class MemberService {
         if (profileImg == null || profileImg.isEmpty()) {
             return amazonS3Service.getDefaultProfileImg();
         } else {
-            return amazonS3Service.uploadFile(profileImage, DomainType.MEMBERS);
+            return amazonS3Service.uploadFile(profileImg, DomainType.MEMBERS);
         }
     }
   
