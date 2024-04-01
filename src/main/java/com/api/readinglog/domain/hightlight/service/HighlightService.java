@@ -31,6 +31,7 @@ public class HighlightService {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
 
+        // TODO: 결과가 없는 경우에 404 처리
         return highlightRepository.findAllByMemberAndBook(member, book, pageable)
                 .map(HighlightResponse::fromEntity);
     }
@@ -40,8 +41,8 @@ public class HighlightService {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
 
-        Highlight highlight = Highlight.of(member, book, request);
-        highlightRepository.save(highlight);
+        Highlight highlight = highlightRepository.save(Highlight.of(member, book, request));
+        book.getHighlightList().add(highlight);
     }
 
     public void modify(Long memberId, Long highlightId, ModifyRequest request) {

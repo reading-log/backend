@@ -60,8 +60,8 @@ public class SummaryService {
             throw new SummaryException(ErrorCode.SUMMARY_ALREADY_EXISTS);
         });
 
-        Summary summary = Summary.of(member, book, request);
-        summaryRepository.save(summary);
+        Summary summary = summaryRepository.save(Summary.of(member, book, request));
+        book.getSummaryList().add(summary);
     }
 
     public void modify(Long memberId, Long summaryId, ModifyRequest request) {

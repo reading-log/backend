@@ -4,7 +4,12 @@ import com.api.readinglog.common.base.BaseTimeEntity;
 import com.api.readinglog.domain.book.dto.BookDirectRequest;
 import com.api.readinglog.domain.book.dto.BookModifyRequest;
 import com.api.readinglog.domain.book.dto.BookRegisterRequest;
+import com.api.readinglog.domain.hightlight.entity.Highlight;
 import com.api.readinglog.domain.member.entity.Member;
+import com.api.readinglog.domain.record.entity.Record;
+import com.api.readinglog.domain.review.entity.Review;
+import com.api.readinglog.domain.summary.entity.Summary;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,6 +18,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -53,6 +61,18 @@ public class Book extends BaseTimeEntity {
 
     @Column(name = "book_cover")
     private String cover;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Summary> summaryList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Highlight> HighlightList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Review> reviewList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Record> recordList = new ArrayList<>();
 
     @Builder
     private Book(Member member, Integer itemId, String title, String author, String publisher, String category, String cover) {

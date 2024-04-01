@@ -45,8 +45,8 @@ public class ReviewService {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
 
-        Review review = Review.of(member, book, request);
-        reviewRepository.save(review);
+        Review review = reviewRepository.save(Review.of(member, book, request));
+        book.getReviewList().add(review);
     }
 
     public void modify(Long memberId, Long reviewId, ModifyRequest request) {

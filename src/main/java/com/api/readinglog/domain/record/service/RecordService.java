@@ -47,7 +47,8 @@ public class RecordService {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
 
-        recordRepository.save(Record.of(member, book, request));
+        Record record = recordRepository.save(Record.of(member, book, request));
+        book.getRecordList().add(record);
     }
 
     public void modify(Long memberId, Long recordId, RecordModifyRequest request) {
