@@ -12,7 +12,6 @@ import com.api.readinglog.domain.review.controller.dto.response.ReviewResponse;
 import com.api.readinglog.domain.review.entity.Review;
 import com.api.readinglog.domain.review.repository.ReviewRepository;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +33,7 @@ public class ReviewService {
         List<ReviewResponse> reviews = reviewRepository.findAllByMemberAndBook(member, book)
                 .stream()
                 .map(ReviewResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
 
         if (reviews.isEmpty()) {
             throw new ReviewException(ErrorCode.NOT_FOUND_REVIEW);
