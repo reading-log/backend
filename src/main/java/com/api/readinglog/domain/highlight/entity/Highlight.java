@@ -1,14 +1,12 @@
-package com.api.readinglog.domain.hightlight.entity;
+package com.api.readinglog.domain.highlight.entity;
 
 import com.api.readinglog.common.base.BaseTimeEntity;
 import com.api.readinglog.domain.book.entity.Book;
-import com.api.readinglog.domain.hightlight.controller.dto.request.ModifyRequest;
-import com.api.readinglog.domain.hightlight.controller.dto.request.WriteRequest;
+import com.api.readinglog.domain.highlight.controller.dto.request.ModifyRequest;
+import com.api.readinglog.domain.highlight.controller.dto.request.WriteRequest;
 import com.api.readinglog.domain.member.entity.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;

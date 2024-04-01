@@ -11,9 +11,8 @@ import com.api.readinglog.domain.review.controller.dto.request.WriteRequest;
 import com.api.readinglog.domain.review.controller.dto.response.ReviewResponse;
 import com.api.readinglog.domain.review.entity.Review;
 import com.api.readinglog.domain.review.repository.ReviewRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,14 +26,16 @@ public class ReviewService {
     private final BookService bookService;
 
     @Transactional(readOnly = true)
-    public Page<ReviewResponse> reviews(Long memberId, Long bookId, Pageable pageable) {
+    public List<ReviewResponse> reviews(Long memberId, Long bookId) {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
 
-        Page<ReviewResponse> reviews = reviewRepository.findAllByMemberAndBook(member, book, pageable)
-                .map(ReviewResponse::fromEntity);
+        List<ReviewResponse> reviews = reviewRepository.findAllByMemberAndBook(member, book)
+                .stream()
+                .map(ReviewResponse::fromEntity)
+                .toList();
 
-        if (reviews.getContent().isEmpty()) {
+        if (reviews.isEmpty()) {
             throw new ReviewException(ErrorCode.NOT_FOUND_REVIEW);
         }
 
