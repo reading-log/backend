@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,13 @@ public class RecordController {
 
     private final RecordService recordService;
 
+    @GetMapping("/{bookId}")
+    public Response<List<RecordResponse>> getRecord(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long bookId) {
+
+        List<RecordResponse> response = recordService.getRecord(user.getId(), bookId);
+        return Response.success(HttpStatus.OK, "독서 기록 조회 성공", response);
+    }
+
     @PostMapping("/{bookId}")
     public Response<Void> addRecord(@AuthenticationPrincipal CustomUserDetail user,
                                     @PathVariable Long bookId,
@@ -35,10 +43,11 @@ public class RecordController {
         return Response.success(HttpStatus.OK, "독서 기록 추가 성공");
     }
 
-    @GetMapping("/{bookId}")
-    public Response<List<RecordResponse>> getRecord(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long bookId) {
+    @DeleteMapping("/{recordId}")
+    public Response<Void> delete(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long recordId) {
 
-        List<RecordResponse> response = recordService.getRecord(user.getId(), bookId);
-        return Response.success(HttpStatus.OK, "독서 기록 조회 성공", response);
+        recordService.delete(user.getId(), recordId);
+        return Response.success(HttpStatus.OK, "독서 기록 삭제 성공");
     }
+
 }

@@ -24,13 +24,7 @@ public class RecordService {
     private final MemberService memberService;
     private final BookService bookService;
 
-    public void write(long memberId, long bookId, RecordWriteRequest request) {
-        Member member = memberService.getMemberById(memberId);
-        Book book = bookService.getBookById(bookId);
-
-        recordRepository.save(Record.of(member, book, request));
-    }
-
+    @Transactional(readOnly = true)
     public List<RecordResponse> getRecord(Long memberId, Long bookId) {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
@@ -46,5 +40,27 @@ public class RecordService {
         }
 
         return records;
+    }
+
+    public void write(long memberId, long bookId, RecordWriteRequest request) {
+        Member member = memberService.getMemberById(memberId);
+        Book book = bookService.getBookById(bookId);
+
+        recordRepository.save(Record.of(member, book, request));
+    }
+
+    public void delete(Long memberId, Long recordId) {
+        Member member = memberService.getMemberById(memberId);
+        Record record = getRecordById(recordId);
+
+        if (record.getMember() != member) {
+            throw new RecordException(ErrorCode.FORBIDDEN_DELETE);
+        }
+
+        recordRepository.delete(record);
+    }
+
+    public Record getRecordById(Long recordId) {
+        return recordRepository.findById(recordId).orElseThrow(() -> new RecordException(ErrorCode.NOT_FOUND_RECORD));
     }
 }

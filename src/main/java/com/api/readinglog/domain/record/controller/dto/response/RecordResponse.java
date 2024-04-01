@@ -10,16 +10,16 @@ import lombok.Getter;
 public class RecordResponse {
 
     private Long memberId;
-    private Long recordId;
     private Long bookId;
+    private Long recordId;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
     public static RecordResponse fromEntity(Record record) {
         return RecordResponse.builder()
                 .memberId((record.getMember().getId()))
-                .recordId(record.getId())
                 .bookId(record.getBook().getId())
+                .recordId(record.getId())
                 .startDate(record.getStartDate())
                 .endDate(record.getEndDate())
                 .build();
