@@ -4,6 +4,7 @@ package com.api.readinglog.domain.record.entity;
 import com.api.readinglog.common.base.BaseTimeEntity;
 import com.api.readinglog.domain.book.entity.Book;
 import com.api.readinglog.domain.member.entity.Member;
+import com.api.readinglog.domain.record.controller.dto.request.RecordModifyRequest;
 import com.api.readinglog.domain.record.controller.dto.request.RecordWriteRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -64,4 +65,8 @@ public class Record extends BaseTimeEntity {
                 .build();
     }
 
+    public void modify(RecordModifyRequest request) {
+        this.startDate = request.getStartDate();
+        this.endDate = request.getEndDate();
+    }
 }

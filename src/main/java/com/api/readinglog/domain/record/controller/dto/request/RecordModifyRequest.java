@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 
 @Getter
-public class RecordWriteRequest {
+public class RecordModifyRequest {
 
     @NotNull(message = "독서 시작일은 필수값 입니다.")
     private LocalDateTime startDate;

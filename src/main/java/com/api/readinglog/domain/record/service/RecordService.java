@@ -6,6 +6,7 @@ import com.api.readinglog.domain.book.entity.Book;
 import com.api.readinglog.domain.book.service.BookService;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.service.MemberService;
+import com.api.readinglog.domain.record.controller.dto.request.RecordModifyRequest;
 import com.api.readinglog.domain.record.controller.dto.request.RecordWriteRequest;
 import com.api.readinglog.domain.record.controller.dto.response.RecordResponse;
 import com.api.readinglog.domain.record.entity.Record;
@@ -49,6 +50,17 @@ public class RecordService {
         recordRepository.save(Record.of(member, book, request));
     }
 
+    public void modify(Long memberId, Long recordId, RecordModifyRequest request) {
+        Member member = memberService.getMemberById(memberId);
+        Record record = getRecordById(recordId);
+
+        if (record.getMember() != member) {
+            throw new RecordException(ErrorCode.FORBIDDEN_MODIFY);
+        }
+
+        record.modify(request);
+    }
+
     public void delete(Long memberId, Long recordId) {
         Member member = memberService.getMemberById(memberId);
         Record record = getRecordById(recordId);
@@ -63,4 +75,5 @@ public class RecordService {
     public Record getRecordById(Long recordId) {
         return recordRepository.findById(recordId).orElseThrow(() -> new RecordException(ErrorCode.NOT_FOUND_RECORD));
     }
+
 }
