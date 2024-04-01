@@ -2,7 +2,6 @@ insert into member(member_id, member_email, member_nickname, member_password, me
                    created_at, modified_at, deleted_at)
 values (1, 'dongmin@naver.com', '동민', '{noop}1234', 'default.png', 'member_normal', now(), now(), null);
 
-# 책
 insert into book (book_id, member_id, book_item_id, book_title, book_author, book_publisher, book_category, book_cover, created_at, modified_at, deleted_at) values (1, 1, null, 'Report, The (Gozaresh)', 'hmival0', 'Anheuser-Busch Inbev SA', 'Oyondu', 'http://dummyimage.com/159x100.png/ff4444/ffffff', '2024-03-13 07:37:09', '2024-03-05 20:23:56', null);
 insert into book (book_id, member_id, book_item_id, book_title, book_author, book_publisher, book_category, book_cover, created_at, modified_at, deleted_at) values (2, 1, null, 'Formula, The', 'tcrookshank1', 'Viad Corp', 'Mydeo', 'http://dummyimage.com/116x100.png/dddddd/000000', '2024-03-12 23:27:43', '2024-03-09 00:25:25', null);
 insert into book (book_id, member_id, book_item_id, book_title, book_author, book_publisher, book_category, book_cover, created_at, modified_at, deleted_at) values (3, 1, null, 'He Got Game', 'afouch2', 'CyberOptics Corporation', 'Quimm', 'http://dummyimage.com/145x100.png/5fa2dd/ffffff', '2024-03-07 00:11:29', '2024-03-14 14:18:40', null);
@@ -34,7 +33,6 @@ insert into book (book_id, member_id, book_item_id, book_title, book_author, boo
 insert into book (book_id, member_id, book_item_id, book_title, book_author, book_publisher, book_category, book_cover, created_at, modified_at, deleted_at) values (29, 1, null, 'Rugrats Go Wild!', 'cvains', 'Applied Industrial Technologies, Inc.', 'Tagfeed', 'http://dummyimage.com/110x100.png/cc0000/ffffff', '2024-03-26 05:43:02', '2024-03-09 14:44:01', null);
 insert into book (book_id, member_id, book_item_id, book_title, book_author, book_publisher, book_category, book_cover, created_at, modified_at, deleted_at) values (30, 1, null, 'Postal', 'tmarchellot', 'SMTC Corporation', 'Skalith', 'http://dummyimage.com/118x100.png/ff4444/ffffff', '2024-03-01 09:03:05', '2024-03-17 02:16:17', null);
 
-# 한줄평
 insert into summary (summary_id, member_id, book_id, summary_content, created_at, modified_at, deleted_at) values (1, 1, 1, 'Reduced responsive capability', '2024-03-23 12:38:32', '2024-03-11 05:27:00', null);
 insert into summary (summary_id, member_id, book_id, summary_content, created_at, modified_at, deleted_at) values (2, 1, 2, 'Progressive discrete function', '2024-03-17 21:47:54', '2024-03-24 03:19:14', null);
 insert into summary (summary_id, member_id, book_id, summary_content, created_at, modified_at, deleted_at) values (3, 1, 3, 'Polarised executive alliance', '2024-03-24 05:58:57', '2024-03-09 16:40:30', null);

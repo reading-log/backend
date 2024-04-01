@@ -47,8 +47,8 @@ public class HighlightService {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
 
-        Highlight highlight = Highlight.of(member, book, request);
-        highlightRepository.save(highlight);
+        Highlight highlight = highlightRepository.save(Highlight.of(member, book, request));
+        book.getHighlightList().add(highlight);
     }
 
     public void modify(Long memberId, Long highlightId, ModifyRequest request) {

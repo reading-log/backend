@@ -38,6 +38,8 @@ public enum ErrorCode {
     NOT_FOUND_HIGHLIGHT("등록된 하이라이트가 존재하지 않습니다!", HttpStatus.NOT_FOUND),
     NOT_FOUND_SUMMARY("등록된 한줄평이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
     NOT_FOUND_REVIEW("서평이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
+    NOT_FOUND_RECORD("독서 기록이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
+    NOT_FOUND_FEED("피드 목록이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
     NOT_FOUND_BOOK_LOGS("북로그 목록이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
 
     // 409
