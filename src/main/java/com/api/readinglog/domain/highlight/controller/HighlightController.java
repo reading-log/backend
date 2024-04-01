@@ -1,19 +1,15 @@
-package com.api.readinglog.domain.hightlight.controller;
+package com.api.readinglog.domain.highlight.controller;
 
 import com.api.readinglog.common.response.Response;
 import com.api.readinglog.common.security.CustomUserDetail;
-import com.api.readinglog.domain.hightlight.controller.dto.request.ModifyRequest;
-import com.api.readinglog.domain.hightlight.controller.dto.request.WriteRequest;
-import com.api.readinglog.domain.hightlight.controller.dto.response.HighlightResponse;
-import com.api.readinglog.domain.hightlight.service.HighlightService;
+import com.api.readinglog.domain.highlight.controller.dto.request.ModifyRequest;
+import com.api.readinglog.domain.highlight.controller.dto.request.WriteRequest;
+import com.api.readinglog.domain.highlight.controller.dto.response.HighlightResponse;
+import com.api.readinglog.domain.highlight.service.HighlightService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,12 +30,11 @@ public class HighlightController {
     private final HighlightService highlightService;
 
     @GetMapping("/{bookId}/me")
-    public Response<Page<HighlightResponse>> highlights(@AuthenticationPrincipal CustomUserDetail user,
-                                                        @PathVariable Long bookId,
-                                                        @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
+    public Response<List<HighlightResponse>> highlights(@AuthenticationPrincipal CustomUserDetail user,
+                                                        @PathVariable Long bookId) {
 
-        Page<HighlightResponse> response = highlightService.highlights(user.getId(), bookId, pageable);
-        return Response.success(HttpStatus.OK, "하이라이트 목록 조회 성공", response);
+        List<HighlightResponse> response = highlightService.highlights(user.getId(), bookId);
+        return Response.success(HttpStatus.OK, "내가 쓴 하이라이트 목록 조회 성공", response);
     }
 
     @PostMapping("/{bookId}")
