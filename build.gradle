@@ -63,6 +63,9 @@ dependencies {
 
 	/* Redis */
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	/* Swagger */
+	implementation group: 'io.swagger.core.v3', name: 'swagger-core-jakarta', version: '2.2.7'
 }
 
 tasks.named('bootBuildImage') {
