@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(
                 title = "리딩로그 API 명세서",
                 description = "독서 기록 서비스 리딩로그의 API 명세서",
-                contact = @Contact(name = "the developer", email = "ddmkim94@gmail.com"),
                 version = "v1.0")
 )
 @Configuration
