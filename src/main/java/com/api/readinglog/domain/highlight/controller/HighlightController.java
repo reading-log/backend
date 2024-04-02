@@ -6,6 +6,8 @@ import com.api.readinglog.domain.highlight.controller.dto.request.ModifyRequest;
 import com.api.readinglog.domain.highlight.controller.dto.request.WriteRequest;
 import com.api.readinglog.domain.highlight.controller.dto.response.HighlightResponse;
 import com.api.readinglog.domain.highlight.service.HighlightService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Highlight", description = "Highlight API")
 @Slf4j
 @RestController
 @RequestMapping("/api/highlights")
@@ -29,6 +32,7 @@ public class HighlightController {
 
     private final HighlightService highlightService;
 
+    @Operation(summary = "Find highlights", description = "내가 쓴 하이라이트 목록 조회")
     @GetMapping("/{bookId}/me")
     public Response<List<HighlightResponse>> highlights(@AuthenticationPrincipal CustomUserDetail user,
                                                         @PathVariable Long bookId) {
@@ -37,6 +41,7 @@ public class HighlightController {
         return Response.success(HttpStatus.OK, "내가 쓴 하이라이트 목록 조회 성공", response);
     }
 
+    @Operation(summary = "Add a new highlight", description = "하이라이트 작성")
     @PostMapping("/{bookId}")
     public Response<Void> write(@AuthenticationPrincipal CustomUserDetail user,
                                 @PathVariable Long bookId,
@@ -47,6 +52,7 @@ public class HighlightController {
         return Response.success(HttpStatus.CREATED, "하이라이트 작성 성공");
     }
 
+    @Operation(summary = "Modify highlight", description = "하이라이트 수정")
     @PatchMapping("/{highlightId}")
     public Response<Void> modify(@AuthenticationPrincipal CustomUserDetail user,
                                  @PathVariable Long highlightId,
@@ -56,6 +62,7 @@ public class HighlightController {
         return Response.success(HttpStatus.OK, "하이라이트 수정 성공");
     }
 
+    @Operation(summary = "Delete highlight", description = "하이라이트 삭제")
     @DeleteMapping("/{highlightId}")
     public Response<Void> delete(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long highlightId) {
 

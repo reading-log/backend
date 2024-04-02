@@ -15,6 +15,8 @@ import com.api.readinglog.domain.member.controller.dto.request.UpdatePasswordReq
 import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequest;
 import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -31,10 +33,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@Tag(name = "Member", description = "Member API")
 @Slf4j
-@RequiredArgsConstructor
+@RestController
 @RequestMapping("/api/members")
+@RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
@@ -46,12 +49,14 @@ public class MemberController {
         return Response.success(HttpStatus.OK, "닉네임 검사 통과!");
     }
 
+    @Operation(summary = "Create member", description = "일반 회원가입")
     @PostMapping("/join")
     public Response<Void> join(@ModelAttribute @Valid JoinRequest request) {
         memberService.join(request);
         return Response.success(HttpStatus.CREATED, "회원 가입 완료");
     }
 
+    @Operation(summary = "Login member into the system", description = "일반 로그인")
     @PostMapping("/login")
     public Response<Void> login(@RequestBody LoginRequest request, HttpServletResponse response) {
         JwtToken jwtToken = memberService.login(request);
@@ -66,6 +71,7 @@ public class MemberController {
         return Response.success(HttpStatus.OK, "회원 조회 성공!", member);
     }
 
+    @Operation(summary = "Updated member", description = "회원정보 수정")
     @PatchMapping("/me")
     public Response<Void> updateProfile(@AuthenticationPrincipal CustomUserDetail user,
                                         @ModelAttribute @Valid UpdateProfileRequest request) {
@@ -73,6 +79,7 @@ public class MemberController {
         return Response.success(HttpStatus.OK, "회원 수정 성공!");
     }
 
+    @Operation(summary = "Logout member into the system", description = "로그아웃")
     @PostMapping("/logout")
     public Response<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = CookieUtils.extractRefreshToken(request);
@@ -80,6 +87,7 @@ public class MemberController {
         return Response.success(HttpStatus.OK, "로그아웃 성공!");
     }
 
+    @Operation(summary = "Deleted member", description = "일반 회원 탈퇴")
     @DeleteMapping("/me")
     public Response<Void> deleteMember(@AuthenticationPrincipal CustomUserDetail user,
                                        @RequestBody DeleteRequest request) {
