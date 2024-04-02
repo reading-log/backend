@@ -5,6 +5,8 @@ import com.api.readinglog.common.security.CustomUserDetail;
 import com.api.readinglog.domain.summary.controller.dto.request.ModifyRequest;
 import com.api.readinglog.domain.summary.controller.dto.request.WriteRequest;
 import com.api.readinglog.domain.summary.service.SummaryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Summary", description = "Summary API")
 @RestController
 @RequestMapping("/api/summaries")
 @RequiredArgsConstructor
@@ -24,6 +27,7 @@ public class SummaryController {
 
     private final SummaryService summaryService;
 
+    @Operation(summary = "Add a new summary", description = "한줄평 작성")
     @PostMapping("/{bookId}")
     public Response<Void> write(@AuthenticationPrincipal CustomUserDetail user,
                                 @PathVariable Long bookId,
@@ -33,6 +37,7 @@ public class SummaryController {
         return Response.success(HttpStatus.CREATED, "한줄평 작성 성공");
     }
 
+    @Operation(summary = "Modify summary", description = "한줄평 수정")
     @PatchMapping("/{summaryId}")
     public Response<Void> modify(@AuthenticationPrincipal CustomUserDetail user,
                                  @PathVariable Long summaryId,
@@ -42,6 +47,7 @@ public class SummaryController {
         return Response.success(HttpStatus.OK, "한줄평 수정 성공");
     }
 
+    @Operation(summary = "Delete summary", description = "한줄평 삭제")
     @DeleteMapping("/{summaryId}")
     public Response<Void> delete(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long summaryId) {
 

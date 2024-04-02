@@ -6,6 +6,8 @@ import com.api.readinglog.domain.record.controller.dto.request.RecordModifyReque
 import com.api.readinglog.domain.record.controller.dto.request.RecordWriteRequest;
 import com.api.readinglog.domain.record.controller.dto.response.RecordResponse;
 import com.api.readinglog.domain.record.service.RecordService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Record", description = "Record API")
 @RestController
 @RequestMapping("/api/records")
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class RecordController {
 
     private final RecordService recordService;
 
+    @Operation(summary = "Find records", description = "독서 기록 조회")
     @GetMapping("/{bookId}")
     public Response<List<RecordResponse>> getRecord(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long bookId) {
 
@@ -36,6 +40,7 @@ public class RecordController {
         return Response.success(HttpStatus.OK, "독서 기록 조회 성공", response);
     }
 
+    @Operation(summary = "Add a new record", description = "독서 기록 추가")
     @PostMapping("/{bookId}")
     public Response<Void> addRecord(@AuthenticationPrincipal CustomUserDetail user,
                                     @PathVariable Long bookId,
@@ -45,6 +50,7 @@ public class RecordController {
         return Response.success(HttpStatus.OK, "독서 기록 추가 성공");
     }
 
+    @Operation(summary = "Modify record", description = "독서 기록 수정")
     @PatchMapping("/{recordId}")
     public Response<Void> modify(@AuthenticationPrincipal CustomUserDetail user,
                                  @PathVariable Long recordId,
@@ -54,6 +60,7 @@ public class RecordController {
         return Response.success(HttpStatus.OK, "독서 기록 수정 성공");
     }
 
+    @Operation(summary = "Delete record", description = "독서 기록 삭제")
     @DeleteMapping("/{recordId}")
     public Response<Void> delete(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long recordId) {
 
