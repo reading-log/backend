@@ -3,8 +3,13 @@ package com.api.readinglog.domain.like.service;
 import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.SummaryException;
 import com.api.readinglog.common.redis.service.RedisService;
+import com.api.readinglog.domain.summary.controller.dto.response.SummaryResponse;
 import com.api.readinglog.domain.summary.entity.Summary;
 import com.api.readinglog.domain.summary.repository.SummaryRepository;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +58,25 @@ public class LikeSummaryService {
     // 좋아요 개수 조회
     public Integer getSummaryLikeCount(Long summaryId) {
         return redisService.getLikeCount(getSummaryLikesKey(summaryId));
+    }
+
+    // 좋아요 등록 된 한줄평 목록 조회
+    public List<SummaryResponse> getLikeSummaries(Long userId) {
+        String userLikesKey = getUserLikesKey(userId);
+        Set<Long> userLikes = redisService.getLikeData(userLikesKey);
+
+        if (userLikes.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Summary> summaries = summaryRepository.findAllById(userLikes);
+
+        return summaries.stream()
+                .map(summary -> {
+                    String summaryLikesKey = getSummaryLikesKey(summary.getId());
+                    Integer likeCount = redisService.getLikeCount(summaryLikesKey);
+                    return SummaryResponse.fromEntity(summary, likeCount);
+                }).collect(Collectors.toList());
     }
 
     // 유저의 좋아요 존재 여부 확인

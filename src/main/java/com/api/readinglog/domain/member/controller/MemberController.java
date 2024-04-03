@@ -7,6 +7,7 @@ import com.api.readinglog.common.security.util.CookieUtils;
 import com.api.readinglog.domain.email.dto.AuthCodeVerificationRequest;
 import com.api.readinglog.domain.email.dto.EmailRequest;
 import com.api.readinglog.domain.email.service.EmailService;
+import com.api.readinglog.domain.like.service.LikeSummaryService;
 import com.api.readinglog.domain.member.controller.dto.request.DeleteRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinNicknameRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;
@@ -15,6 +16,7 @@ import com.api.readinglog.domain.member.controller.dto.request.UpdatePasswordReq
 import com.api.readinglog.domain.member.controller.dto.request.UpdateProfileRequest;
 import com.api.readinglog.domain.member.controller.dto.response.MemberDetailsResponse;
 import com.api.readinglog.domain.member.service.MemberService;
+import com.api.readinglog.domain.summary.controller.dto.response.SummaryResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +27,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -47,6 +50,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final EmailService emailService;
+    private final LikeSummaryService likeSummaryService;
 
     @Operation(summary = "닉네임 중복 검사", description = "회원 가입 전, 닉네임 중복을 검사합니다.",
             parameters = {
@@ -227,5 +231,11 @@ public class MemberController {
                                                 @RequestBody @Valid EmailRequest request) {
         emailService.sendTemporaryPassword(user.getId(), request.getEmail());
         return Response.success(HttpStatus.OK, "임시 비밀번호 전송 완료");
+    }
+
+    @GetMapping("/likes/summaries")
+    public Response<List<SummaryResponse>> getLikeSummaries(@AuthenticationPrincipal CustomUserDetail user) {
+        List<SummaryResponse> likeSummaries = likeSummaryService.getLikeSummaries(user.getId());
+        return Response.success(HttpStatus.OK, "내가 좋아요 한 한줄평 목록 조회", likeSummaries);
     }
 }

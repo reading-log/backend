@@ -27,6 +27,19 @@ public class RedisService {
         return redisTemplate.opsForValue().get(key);
     }
 
+    public Set<Long> getLikeData(String key) {
+        Set<Object> rawData = redisTemplate.opsForSet().members(key);
+
+        if (rawData == null) {
+            return Collections.emptySet();
+        }
+
+        return rawData.stream()
+                .map(Object::toString)
+                .map(Long::parseLong)
+                .collect(Collectors.toSet());
+    }
+
     public void deleteData(String key) {
         redisTemplate.delete(key);
     }
