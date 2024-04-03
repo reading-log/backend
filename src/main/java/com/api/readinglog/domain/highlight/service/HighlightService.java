@@ -1,19 +1,18 @@
-package com.api.readinglog.domain.hightlight.service;
+package com.api.readinglog.domain.highlight.service;
 
 import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.HighlightException;
 import com.api.readinglog.domain.book.entity.Book;
 import com.api.readinglog.domain.book.service.BookService;
-import com.api.readinglog.domain.hightlight.controller.dto.request.ModifyRequest;
-import com.api.readinglog.domain.hightlight.controller.dto.request.WriteRequest;
-import com.api.readinglog.domain.hightlight.controller.dto.response.HighlightResponse;
-import com.api.readinglog.domain.hightlight.entity.Highlight;
-import com.api.readinglog.domain.hightlight.repository.HighlightRepository;
+import com.api.readinglog.domain.highlight.controller.dto.request.ModifyRequest;
+import com.api.readinglog.domain.highlight.controller.dto.request.WriteRequest;
+import com.api.readinglog.domain.highlight.controller.dto.response.HighlightResponse;
+import com.api.readinglog.domain.highlight.entity.Highlight;
+import com.api.readinglog.domain.highlight.repository.HighlightRepository;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.service.MemberService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,21 +26,29 @@ public class HighlightService {
     private final BookService bookService;
 
     @Transactional(readOnly = true)
-    public Page<HighlightResponse> highlights(Long memberId, Long bookId, Pageable pageable) {
+    public List<HighlightResponse> highlights(Long memberId, Long bookId) {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
 
-        return highlightRepository.findAllByMemberAndBook(member, book, pageable)
-                .map(HighlightResponse::fromEntity);
-    }
+        List<HighlightResponse> highlights = highlightRepository.findAllByMemberAndBook(member, book)
+                .stream()
+                .map(HighlightResponse::fromEntity)
+                .toList();
 
+        // 하이라이트가 존재하지 않는 경우 예외 처리
+        if(highlights.isEmpty()) {
+            throw new HighlightException(ErrorCode.NOT_FOUND_HIGHLIGHT);
+        }
+
+        return highlights;
+    }
 
     public void write(Long memberId, Long bookId, WriteRequest request) {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
 
-        Highlight highlight = Highlight.of(member, book, request);
-        highlightRepository.save(highlight);
+        Highlight highlight = highlightRepository.save(Highlight.of(member, book, request));
+        book.getHighlightList().add(highlight);
     }
 
     public void modify(Long memberId, Long highlightId, ModifyRequest request) {

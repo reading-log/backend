@@ -10,6 +10,9 @@ public enum ErrorCode {
 
     // 400
     PASSWORD_MISMATCH("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_CURRENT_PASSWORD("현재 비밀번호와 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_AUTH_CODE("이메일 인증에 실패했습니다.", HttpStatus.BAD_REQUEST),
+    NOT_FOUND_REFRESH_TOKEN_IN_COOKIE("리프레시 토큰이 쿠키에 없습니다.", HttpStatus.BAD_REQUEST),
 
     // 401
     UNAUTHORIZED_LOGIN("로그인 실패: 인증에 실패하였습니다.", HttpStatus.UNAUTHORIZED),
@@ -32,10 +35,12 @@ public enum ErrorCode {
     NOT_FOUND_MEMBER("회원이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
     NOT_FOUND_SEARCH("검색 결과가 존재하지 않습니다!", HttpStatus.NOT_FOUND),
     NOT_FOUND_BOOK("등록된 책이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
-    NOT_FOUND_HIGHLIGHT("등록된 책이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
+    NOT_FOUND_HIGHLIGHT("등록된 하이라이트가 존재하지 않습니다!", HttpStatus.NOT_FOUND),
     NOT_FOUND_SUMMARY("등록된 한줄평이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
     NOT_FOUND_REVIEW("서평이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
+    NOT_FOUND_RECORD("독서 기록이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
     NOT_FOUND_FEED("피드 목록이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
+    NOT_FOUND_BOOK_LOGS("북로그 목록이 존재하지 않습니다!", HttpStatus.NOT_FOUND),
 
     // 409
     MEMBER_ALREADY_EXISTS("이미 존재하는 회원입니다.", HttpStatus.CONFLICT),
@@ -45,7 +50,8 @@ public enum ErrorCode {
     // 500
     INTERNAL_SERVER_ERROR("서버 에러 발생!", HttpStatus.INTERNAL_SERVER_ERROR),
     AWS_S3_FILE_UPLOAD_FAIL("AWS S3 파일 업로드 실패", HttpStatus.INTERNAL_SERVER_ERROR),
-    AWS_S3_FILE_DELETE_FAIL("AWS S3 파일 삭제 실패", HttpStatus.INTERNAL_SERVER_ERROR),;
+    AWS_S3_FILE_DELETE_FAIL("AWS S3 파일 삭제 실패", HttpStatus.INTERNAL_SERVER_ERROR),
+    EMAIL_SEND_FAILED("이메일 발송 실패", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String message;
     private final HttpStatus status;

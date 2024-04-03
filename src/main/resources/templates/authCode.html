@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>이메일 인증 코드</title>
+</head>
+<body>
+<div style="margin: 0 auto; padding: 20px; max-width: 600px; background-color: #ffffff; border: 1px solid #dddddd; box-shadow: 0 0 10px rgba(0,0,0,0.1); font-family: Arial, sans-serif; color: #333333;">
+    <div style="text-align: center; padding: 20px 0;">
+        <img th:src="@{https://reading-log.s3.ap-northeast-2.amazonaws.com/admin/email.png}" alt="Logo" style="width: 150px;">
+    </div>
+    <div style="padding: 20px 0;">
+        <h1 style="color: #333333;">인증 코드 발급</h1>
+        <p style="margin: 16px 0; line-height: 1.5;">안녕하세요! 리딩 로그 서비스 이용을 위한 인증 코드입니다.</p>
+        <p style="margin: 16px 0; line-height: 1.5;">아래 코드를 입력하여 이메일 인증을 완료해주세요.</p>
+        <div style="margin-top: 20px; padding: 10px; background-color: #f0f0f0; text-align: center; width: auto; font-size: 20px; font-weight: bold;">
+            <span th:text="${code}">인증 코드</span>
+        </div>
+    </div>
+    <div style="text-align: center; padding: 20px 0; font-size: 12px; color: #999999;">
+        <p style="margin: 8px 0;">감사합니다.</p>
+        <p style="margin: 8px 0;">리딩 로그 팀</p>
+    </div>
+</div>
+</body>
+</html>

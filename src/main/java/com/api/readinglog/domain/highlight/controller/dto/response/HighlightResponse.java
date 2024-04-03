@@ -1,6 +1,6 @@
-package com.api.readinglog.domain.hightlight.controller.dto.response;
+package com.api.readinglog.domain.highlight.controller.dto.response;
 
-import com.api.readinglog.domain.hightlight.entity.Highlight;
+import com.api.readinglog.domain.highlight.entity.Highlight;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;

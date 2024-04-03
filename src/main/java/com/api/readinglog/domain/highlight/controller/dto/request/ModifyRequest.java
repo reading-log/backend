@@ -1,4 +1,4 @@
-package com.api.readinglog.domain.hightlight.controller.dto.request;
+package com.api.readinglog.domain.highlight.controller.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

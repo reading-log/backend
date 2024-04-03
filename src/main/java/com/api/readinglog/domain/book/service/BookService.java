@@ -1,9 +1,11 @@
 package com.api.readinglog.domain.book.service;
 
 import com.api.readinglog.common.aws.AmazonS3Service;
+import com.api.readinglog.common.aws.DomainType;
 import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.BookException;
 import com.api.readinglog.common.exception.custom.MemberException;
+import com.api.readinglog.common.image.ImageUtil;
 import com.api.readinglog.domain.book.dto.BookDetailResponse;
 import com.api.readinglog.domain.book.dto.BookDirectRequest;
 import com.api.readinglog.domain.book.dto.BookModifyRequest;
@@ -17,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
@@ -51,15 +52,14 @@ public class BookService {
             throw new BookException(ErrorCode.EMPTY_SEARCH_KEYWORD);
         }
 
-        // TODO: 독서 기록이 있는 책인 경우 독서 기록도 응답에 포함시켜 전달.
         BookSearchApiResponse response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/ItemSearch.aspx")
-                        .queryParam("Query", query) // 검색어
-                        .queryParam("QueryType", "Keyword") // 제목 + 저자로 검색
+                        .queryParam("Query", query)
+                        .queryParam("QueryType", "Title") // 제목으로 검색
                         .queryParam("SearchTarget", "Book") // 검색 대상: 도서
                         .queryParam("Start", start) // 시작 페이지: 1
-                        .queryParam("MaxResults", "20") // 페이지 당 검색 결과: 20개
+                        .queryParam("MaxResults", "10") // 페이지 당 검색 결과: 10개
                         .queryParam("Sort", "Accuracy") // 관련도순 정렬
                         .build()
                 )
@@ -84,7 +84,7 @@ public class BookService {
     // 책 직접 등록
     public void registerBookDirect(Long memberId, BookDirectRequest request) {
         Member member = memberService.getMemberById(memberId);
-        String cover = amazonS3Service.uploadBookCover(request.getCover());
+        String cover = amazonS3Service.uploadFile(request.getCover(), DomainType.BOOK);
 
         bookRepository.save(Book.of(member, request, cover));
     }
@@ -93,12 +93,12 @@ public class BookService {
         Member member = memberService.getMemberById(memberId);
         Book book = getBookById(bookId);
 
-        // 파일이 존재하면 기존 이미지 삭제 후 새로운 이미지 업로드
         String cover = book.getCover();
-        MultipartFile coverImg = bookModifyRequest.getCover();
-        if (!(coverImg == null || coverImg.isEmpty())) {
+
+        // 파일이 존재하면 기존 이미지 삭제 후 새로운 이미지 업로드
+        if (ImageUtil.isNotEmptyImageFile(bookModifyRequest.getCover())) {
             amazonS3Service.deleteFile(cover);
-            cover = amazonS3Service.uploadBookCover(bookModifyRequest.getCover());
+            cover = amazonS3Service.uploadFile(bookModifyRequest.getCover(), DomainType.BOOK);
         }
 
         book.modify(bookModifyRequest, cover);

@@ -6,12 +6,11 @@ import com.api.readinglog.domain.review.controller.dto.request.ModifyRequest;
 import com.api.readinglog.domain.review.controller.dto.request.WriteRequest;
 import com.api.readinglog.domain.review.controller.dto.response.ReviewResponse;
 import com.api.readinglog.domain.review.service.ReviewService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Review", description = "Review API")
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
@@ -30,15 +30,16 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    @Operation(summary = "Find reviews", description = "내가 쓴 서평 목록 조회")
     @GetMapping("/{bookId}/me")
-    public Response<Page<ReviewResponse>> reviews(@AuthenticationPrincipal CustomUserDetail user,
-                                                  @PathVariable Long bookId,
-                                                  @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
+    public Response<List<ReviewResponse>> reviews(@AuthenticationPrincipal CustomUserDetail user,
+                                                  @PathVariable Long bookId) {
 
-        Page<ReviewResponse> response = reviewService.reviews(user.getId(), bookId, pageable);
+        List<ReviewResponse> response = reviewService.reviews(user.getId(), bookId);
         return Response.success(HttpStatus.OK, "내가 쓴 서평 목록 조회 성공", response);
     }
 
+    @Operation(summary = "Add a new review", description = "서평 작성")
     @PostMapping("/{bookId}")
     public Response<Void> write(@AuthenticationPrincipal CustomUserDetail user,
                                 @PathVariable Long bookId,
@@ -48,6 +49,7 @@ public class ReviewController {
         return Response.success(HttpStatus.CREATED, "서평 작성 성공");
     }
 
+    @Operation(summary = "Modify review", description = "서평 수정")
     @PatchMapping("/{reviewId}")
     public Response<Void> modify(@AuthenticationPrincipal CustomUserDetail user,
                                  @PathVariable Long reviewId,
@@ -57,6 +59,7 @@ public class ReviewController {
         return Response.success(HttpStatus.OK, "서평 수정 성공");
     }
 
+    @Operation(summary = "Delete review", description = "서평 삭제")
     @DeleteMapping("/{reviewId}")
     public Response<Void> modify(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long reviewId) {
 
