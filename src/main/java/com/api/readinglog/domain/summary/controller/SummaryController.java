@@ -2,6 +2,7 @@ package com.api.readinglog.domain.summary.controller;
 
 import com.api.readinglog.common.response.Response;
 import com.api.readinglog.common.security.CustomUserDetail;
+import com.api.readinglog.domain.like.service.LikeSummaryService;
 import com.api.readinglog.domain.summary.controller.dto.request.ModifyRequest;
 import com.api.readinglog.domain.summary.controller.dto.request.WriteRequest;
 import com.api.readinglog.domain.summary.service.SummaryService;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SummaryController {
 
     private final SummaryService summaryService;
+    private final LikeSummaryService likeSummaryService;
 
     @Operation(summary = "Add a new summary", description = "한줄평 작성")
     @PostMapping("/{bookId}")
@@ -55,4 +58,19 @@ public class SummaryController {
         return Response.success(HttpStatus.OK, "한줄평 삭제 성공");
     }
 
+    @Operation(summary = "한 줄평 좋아요 등록", description = "한 줄평 좋아요 등록입니다.")
+    @PostMapping("/likes/{summaryId}")
+    public Response<Void> like(@AuthenticationPrincipal CustomUserDetail user,
+                               @PathVariable Long summaryId) {
+        likeSummaryService.addLikeSummary(user.getId(), summaryId);
+        return Response.success(HttpStatus.OK, "한 줄평 좋아요 등록 성공");
+    }
+
+    @Operation(summary = "한 줄평 좋아요 취소", description = "한 줄평 좋아요 취소입니다.")
+    @DeleteMapping("/likes/{summaryId}")
+    public Response<Void> unlike(@AuthenticationPrincipal CustomUserDetail user,
+                                 @PathVariable Long summaryId) {
+        likeSummaryService.deleteLikeSummary(user.getId(), summaryId);
+        return Response.success(HttpStatus.OK, "한 줄평 좋아요 취소 성공");
+    }
 }

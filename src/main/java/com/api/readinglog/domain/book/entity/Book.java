@@ -45,7 +45,7 @@ public class Book extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(name = "book_item_id", unique = true)
+    @Column(name = "book_item_id")
     private Integer itemId; // 책 고유 번호
 
     @Column(name = "book_title", nullable = false)
