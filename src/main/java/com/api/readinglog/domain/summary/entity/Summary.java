@@ -42,11 +42,15 @@ public class Summary extends BaseTimeEntity {
     @Column(name = "summary_content", nullable = false, length = 100)
     private String content;
 
+    @Column(name = "summary_like_count")
+    private Integer likeCount;
+
     @Builder
     private Summary(Member member, Book book, String content) {
         this.member = member;
         this.book = book;
         this.content = content;
+        this.likeCount = 0;
     }
 
     public static Summary of(Member member, Book book, WriteRequest request) {
@@ -59,5 +63,9 @@ public class Summary extends BaseTimeEntity {
 
     public void modify(ModifyRequest request) {
         this.content = request.getContent();
+    }
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
     }
 }
