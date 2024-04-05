@@ -5,7 +5,7 @@ import com.api.readinglog.domain.summary.entity.Summary;
 import com.api.readinglog.domain.summary.repository.SummaryRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +17,8 @@ public class CacheInitializer {
     private final SummaryRepository summaryRepository;
 
     // 서버 재시작 시 캐시의 좋아요 개수를 DB에 초기화
-    @EventListener(ContextRefreshedEvent.class)
-    public void initializeCacheWithSummaries(ContextRefreshedEvent event) {
+    @EventListener(ApplicationReadyEvent.class)
+    public void initializeCacheWithSummaries(ApplicationReadyEvent event) {
         List<Summary> summaries = summaryRepository.findAll();
 
         summaries.forEach(summary -> {
