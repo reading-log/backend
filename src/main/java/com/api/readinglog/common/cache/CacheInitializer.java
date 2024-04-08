@@ -1,6 +1,6 @@
 package com.api.readinglog.common.cache;
 
-import com.api.readinglog.domain.like.service.LikeSummaryService;
+import com.api.readinglog.domain.likesummary.service.LikeSummaryService;
 import com.api.readinglog.domain.summary.entity.Summary;
 import com.api.readinglog.domain.summary.repository.SummaryRepository;
 import java.util.List;

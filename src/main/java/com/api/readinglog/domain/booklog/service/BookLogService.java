@@ -8,7 +8,7 @@ import com.api.readinglog.domain.book.service.BookService;
 import com.api.readinglog.domain.booklog.controller.dto.BookLogResponse;
 import com.api.readinglog.domain.highlight.controller.dto.response.HighlightResponse;
 import com.api.readinglog.domain.highlight.repository.HighlightRepository;
-import com.api.readinglog.domain.like.service.LikeSummaryService;
+import com.api.readinglog.domain.likesummary.service.LikeSummaryService;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.service.MemberService;
 import com.api.readinglog.domain.review.controller.dto.response.ReviewResponse;
