@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Highlight", description = "Highlight API")
+@Tag(name = "Highlight", description = "하이라이트 API 목록입니다.")
 @Slf4j
 @RestController
 @RequestMapping("/api/highlights")
@@ -32,7 +32,7 @@ public class HighlightController {
 
     private final HighlightService highlightService;
 
-    @Operation(summary = "Find highlights", description = "내가 쓴 하이라이트 목록 조회")
+    @Operation(summary = "내가 작성한 하이라이트 목록 조회", description = "특정 책에 등록한 하이라이트 목록을 조회합니다.")
     @GetMapping("/{bookId}/me")
     public Response<List<HighlightResponse>> highlights(@AuthenticationPrincipal CustomUserDetail user,
                                                         @PathVariable Long bookId) {
@@ -41,7 +41,7 @@ public class HighlightController {
         return Response.success(HttpStatus.OK, "내가 쓴 하이라이트 목록 조회 성공", response);
     }
 
-    @Operation(summary = "Add a new highlight", description = "하이라이트 작성")
+    @Operation(summary = "하이라이트 작성", description = "특정 책에 하이라이트를 작성합니다.")
     @PostMapping("/{bookId}")
     public Response<Void> write(@AuthenticationPrincipal CustomUserDetail user,
                                 @PathVariable Long bookId,
@@ -52,7 +52,7 @@ public class HighlightController {
         return Response.success(HttpStatus.CREATED, "하이라이트 작성 성공");
     }
 
-    @Operation(summary = "Modify highlight", description = "하이라이트 수정")
+    @Operation(summary = "하이라이트 수정", description = "작성한 하이라이트를 수정합니다.")
     @PatchMapping("/{highlightId}")
     public Response<Void> modify(@AuthenticationPrincipal CustomUserDetail user,
                                  @PathVariable Long highlightId,
@@ -62,7 +62,7 @@ public class HighlightController {
         return Response.success(HttpStatus.OK, "하이라이트 수정 성공");
     }
 
-    @Operation(summary = "Delete highlight", description = "하이라이트 삭제")
+    @Operation(summary = "하이라이트 삭제", description = "작성한 하이라이트를 삭제합니다.")
     @DeleteMapping("/{highlightId}")
     public Response<Void> delete(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long highlightId) {
 

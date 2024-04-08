@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Review", description = "Review API")
+@Tag(name = "Review", description = "서평 API 목록입니다.")
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
@@ -30,7 +30,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @Operation(summary = "Find reviews", description = "내가 쓴 서평 목록 조회")
+    @Operation(summary = "내가 작성한 서평 목록 조회", description = "특정 책에 등록한 서평 목록을 조회합니다.")
     @GetMapping("/{bookId}/me")
     public Response<List<ReviewResponse>> reviews(@AuthenticationPrincipal CustomUserDetail user,
                                                   @PathVariable Long bookId) {
@@ -39,7 +39,7 @@ public class ReviewController {
         return Response.success(HttpStatus.OK, "내가 쓴 서평 목록 조회 성공", response);
     }
 
-    @Operation(summary = "Add a new review", description = "서평 작성")
+    @Operation(summary = "서평 작성", description = "특정 책에 서평을 작성합니다.")
     @PostMapping("/{bookId}")
     public Response<Void> write(@AuthenticationPrincipal CustomUserDetail user,
                                 @PathVariable Long bookId,
@@ -49,7 +49,7 @@ public class ReviewController {
         return Response.success(HttpStatus.CREATED, "서평 작성 성공");
     }
 
-    @Operation(summary = "Modify review", description = "서평 수정")
+    @Operation(summary = "서평 수정", description = "작성한 서평을 수정합니다.")
     @PatchMapping("/{reviewId}")
     public Response<Void> modify(@AuthenticationPrincipal CustomUserDetail user,
                                  @PathVariable Long reviewId,
@@ -59,7 +59,7 @@ public class ReviewController {
         return Response.success(HttpStatus.OK, "서평 수정 성공");
     }
 
-    @Operation(summary = "Delete review", description = "서평 삭제")
+    @Operation(summary = "서평 삭제", description = "작성한 서평을 삭제합니다.")
     @DeleteMapping("/{reviewId}")
     public Response<Void> modify(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long reviewId) {
 
