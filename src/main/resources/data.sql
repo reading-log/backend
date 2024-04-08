@@ -1,6 +1,9 @@
 insert into member(member_id, member_email, member_nickname, member_password, member_profile_img, member_role,
                    created_at, modified_at, deleted_at)
 values (1, 'dongmin@naver.com', '동민', '{noop}1234', 'default.png', 'member_normal', now(), now(), null);
+insert into member(member_id, member_email, member_nickname, member_password, member_profile_img, member_role,
+                   created_at, modified_at, deleted_at)
+values (2, 'dongmin2@naver.com', '동민22', '{noop}1234', 'default.png', 'member_normal', now(), now(), null);
 
 insert into book (book_id, member_id, book_item_id, book_title, book_author, book_publisher, book_category, book_cover, created_at, modified_at, deleted_at) values (1, 1, null, 'Report, The (Gozaresh)', 'hmival0', 'Anheuser-Busch Inbev SA', 'Oyondu', 'http://dummyimage.com/159x100.png/ff4444/ffffff', '2024-03-13 07:37:09', '2024-03-05 20:23:56', null);
 insert into book (book_id, member_id, book_item_id, book_title, book_author, book_publisher, book_category, book_cover, created_at, modified_at, deleted_at) values (2, 1, null, 'Formula, The', 'tcrookshank1', 'Viad Corp', 'Mydeo', 'http://dummyimage.com/116x100.png/dddddd/000000', '2024-03-12 23:27:43', '2024-03-09 00:25:25', null);
@@ -63,3 +66,9 @@ insert into summary (summary_id, member_id, book_id, summary_content, created_at
 insert into summary (summary_id, member_id, book_id, summary_content, created_at, modified_at, deleted_at) values (28, 1, 28, 'Streamlined mobile capacity', '2024-03-24 12:31:10', '2024-03-11 19:23:06', null);
 insert into summary (summary_id, member_id, book_id, summary_content, created_at, modified_at, deleted_at) values (29, 1, 29, 'Cross-group intermediate superstructure', '2024-03-19 07:58:29', '2024-03-17 03:57:50', null);
 insert into summary (summary_id, member_id, book_id, summary_content, created_at, modified_at, deleted_at) values (30, 1, 30, 'De-engineered demand-driven open architecture', '2024-03-13 14:06:05', '2024-03-02 14:13:32', null);
+
+insert into like_summary(id, member_id, summary_id, created_at, modified_at, deleted_at) values (1, 1, 1, now(), now(), null);
+insert into like_summary(id, member_id, summary_id, created_at, modified_at, deleted_at) values (2, 1, 2, now(), now(), null);
+insert into like_summary(id, member_id, summary_id, created_at, modified_at, deleted_at) values (3, 1, 3, now(), now(), null);
+insert into like_summary(id, member_id, summary_id, created_at, modified_at, deleted_at) values (4, 1, 4, now(), now(), null);
+insert into like_summary(id, member_id, summary_id, created_at, modified_at, deleted_at) values (5, 1, 5, now(), now(), null);

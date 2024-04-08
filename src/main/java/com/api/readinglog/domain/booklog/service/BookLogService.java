@@ -8,6 +8,7 @@ import com.api.readinglog.domain.book.service.BookService;
 import com.api.readinglog.domain.booklog.controller.dto.BookLogResponse;
 import com.api.readinglog.domain.highlight.controller.dto.response.HighlightResponse;
 import com.api.readinglog.domain.highlight.repository.HighlightRepository;
+import com.api.readinglog.domain.likesummary.service.LikeSummaryService;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.service.MemberService;
 import com.api.readinglog.domain.review.controller.dto.response.ReviewResponse;
@@ -32,6 +33,7 @@ public class BookLogService {
     private final SummaryRepository summaryRepository;
     private final ReviewRepository reviewRepository;
     private final HighlightRepository highlightRepository;
+    private final LikeSummaryService likeSummaryService;
 
     @Transactional(readOnly = true)
     public BookLogResponse myLogs(Long memberId, Long bookId) {
@@ -51,7 +53,8 @@ public class BookLogService {
 
     @Transactional(readOnly = true)
     public Page<SummaryResponse> bookLogs(Pageable pageable) {
-        Page<SummaryResponse> bookLogs = summaryRepository.findAllBy(pageable).map(SummaryResponse::fromEntity);
+        Page<SummaryResponse> bookLogs = summaryRepository.findAllBy(pageable)
+                .map(summary -> SummaryResponse.fromEntity(summary, likeSummaryService.getSummaryLikeCount(summary.getId())));
 
         // 북로그가 존재하지 않는 경우 예외 처리
         if (bookLogs.getContent().isEmpty()) {

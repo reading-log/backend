@@ -15,10 +15,9 @@ public class SummaryResponse {
     private String bookCover;
     private String content;
     private LocalDateTime createdAt;
-    // TODO: 좋아요 개수
+    private int likeCount;
 
-
-    public static SummaryResponse fromEntity(Summary summary) {
+    public static SummaryResponse fromEntity(Summary summary, int likeCount) {
         return SummaryResponse.builder()
                 .nickname(summary.getMember().getNickname())
                 .bookTitle(summary.getBook().getTitle())
@@ -26,6 +25,7 @@ public class SummaryResponse {
                 .bookCover(summary.getBook().getCover())
                 .content(summary.getContent())
                 .createdAt(summary.getCreatedAt())
+                .likeCount(likeCount)
                 .build();
     }
 }
