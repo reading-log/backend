@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Record", description = "Record API")
+@Tag(name = "Record", description = "독서 날짜 기록 API 목록입니다.")
 @RestController
 @RequestMapping("/api/records")
 @RequiredArgsConstructor
@@ -32,7 +32,7 @@ public class RecordController {
 
     private final RecordService recordService;
 
-    @Operation(summary = "Find records", description = "독서 기록 조회")
+    @Operation(summary = "독서 날짜 기록 조회", description = "특정 책에 등록한 독서 날짜 기록을 조회합니다.")
     @GetMapping("/{bookId}")
     public Response<List<RecordResponse>> getRecord(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long bookId) {
 
@@ -40,7 +40,7 @@ public class RecordController {
         return Response.success(HttpStatus.OK, "독서 기록 조회 성공", response);
     }
 
-    @Operation(summary = "Add a new record", description = "독서 기록 추가")
+    @Operation(summary = "독서 날짜 기록 추가", description = "특정 책에 독서 날짜 기록을 추가합니다.")
     @PostMapping("/{bookId}")
     public Response<Void> addRecord(@AuthenticationPrincipal CustomUserDetail user,
                                     @PathVariable Long bookId,
@@ -50,7 +50,7 @@ public class RecordController {
         return Response.success(HttpStatus.OK, "독서 기록 추가 성공");
     }
 
-    @Operation(summary = "Modify record", description = "독서 기록 수정")
+    @Operation(summary = "독서 날짜 기록 수정", description = "등록한 독서 날짜 기록을 수정합니다.")
     @PatchMapping("/{recordId}")
     public Response<Void> modify(@AuthenticationPrincipal CustomUserDetail user,
                                  @PathVariable Long recordId,
@@ -60,7 +60,7 @@ public class RecordController {
         return Response.success(HttpStatus.OK, "독서 기록 수정 성공");
     }
 
-    @Operation(summary = "Delete record", description = "독서 기록 삭제")
+    @Operation(summary = "독서 날짜 기록 삭제", description = "등록한 독서 날짜 기록을 삭제합니다.")
     @DeleteMapping("/{recordId}")
     public Response<Void> delete(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long recordId) {
 

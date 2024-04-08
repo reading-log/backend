@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Book", description = "Book API")
+@Tag(name = "Book", description = "책 API 목록입니다.")
 @Slf4j
 @RestController
 @RequestMapping("/api/books")
@@ -36,14 +36,14 @@ public class BookController {
 
     private final BookService bookService;
 
-    @Operation(summary = "Find book by ID", description = "사용자가 등록한 책 정보 조회")
+    @Operation(summary = "등록한 책 조회", description = "사용자가 등록한 책 정보를 조회합니다.")
     @GetMapping("/{bookId}")
     public Response<BookDetailResponse> getBookInfo(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long bookId) {
 
         return Response.success(HttpStatus.OK, String.format("%d번 책 정보 응답 성공", bookId), bookService.getBookInfo(user.getId(), bookId));
     }
 
-    @Operation(summary = "Search book", description = "책 검색")
+    @Operation(summary = "책 검색", description = "검색어를 통해 책을 검색합니다.")
     @GetMapping("/search")
     public Response<BookSearchApiResponse> searchBooks(@RequestParam(required = false) String q,
                                                        @RequestParam(defaultValue = "1") int start) {
@@ -51,7 +51,7 @@ public class BookController {
         return Response.success(HttpStatus.OK, "책 검색 성공", bookService.searchBooks(q, start));
     }
 
-    @Operation(summary = "Add a new book after search", description = "책 검색 후 등록")
+    @Operation(summary = "책 검색 후 등록", description = "검색한 책 정보를 통해 책을 등록합니다.")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Response<Void> registerBookAfterSearch(@AuthenticationPrincipal CustomUserDetail user,
                                        @RequestBody @Valid BookRegisterRequest request) {
@@ -60,7 +60,7 @@ public class BookController {
         return Response.success(HttpStatus.CREATED, "책 등록 성공");
     }
 
-    @Operation(summary = "Add a new book direct registration", description = "책 직접 등록")
+    @Operation(summary = "책 직접 등록", description = "책 정보를 직접 입력해서 책을 등록합니다.")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Response<Void> registerBookDirect(@AuthenticationPrincipal CustomUserDetail user,
                                              @ModelAttribute @Valid BookDirectRequest request) {
@@ -69,7 +69,7 @@ public class BookController {
         return Response.success(HttpStatus.CREATED, "책 등록 성공");
     }
 
-    @Operation(summary = "Modify book info", description = "책 정보 수정")
+    @Operation(summary = "책 정보 수정", description = "등록한 책 정보를 수정합니다.")
     @PatchMapping("/{bookId}")
     public Response<Void> modifyBook(@AuthenticationPrincipal CustomUserDetail user,
                                      @ModelAttribute BookModifyRequest bookModifyRequest,
@@ -79,10 +79,9 @@ public class BookController {
         return Response.success(HttpStatus.OK, "책 수정 성공");
     }
 
-    @Operation(summary = "Delete book", description = "책 삭제")
+    @Operation(summary = "책 삭제", description = "등록한 책을 삭제합니다.")
     @DeleteMapping("/{bookId}")
     public Response<Void> deleteBook(@AuthenticationPrincipal CustomUserDetail user, @PathVariable Long bookId) {
-        // TODO: 책이 삭제될 때 해당 책에 관한 기록, 포스트 함께 삭제?
         bookService.deleteBook(user.getId(), bookId);
         return Response.success(HttpStatus.OK, "%d번 책 삭제 성공".formatted(bookId));
     }
