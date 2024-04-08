@@ -24,7 +24,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository{
     }
 
     @Override
-    public List<BookCategoryResponse> getBookCountGroupByCategory(Long memberId, int month) {
+    public List<BookCategoryResponse> getBookCountGroupByCategoryInMonth(Long memberId, int month) {
         return queryFactory
                 .select(Projections.constructor(BookCategoryResponse.class, book.category, book.count()))
                 .from(book)
