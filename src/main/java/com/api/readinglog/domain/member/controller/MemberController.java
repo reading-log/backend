@@ -7,7 +7,7 @@ import com.api.readinglog.common.security.util.CookieUtils;
 import com.api.readinglog.domain.email.dto.AuthCodeVerificationRequest;
 import com.api.readinglog.domain.email.dto.EmailRequest;
 import com.api.readinglog.domain.email.service.EmailService;
-import com.api.readinglog.domain.like.service.LikeSummaryService;
+import com.api.readinglog.domain.likesummary.service.LikeSummaryService;
 import com.api.readinglog.domain.member.controller.dto.request.DeleteRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinNicknameRequest;
 import com.api.readinglog.domain.member.controller.dto.request.JoinRequest;

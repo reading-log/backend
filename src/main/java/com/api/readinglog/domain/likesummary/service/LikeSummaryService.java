@@ -1,8 +1,13 @@
-package com.api.readinglog.domain.like.service;
+package com.api.readinglog.domain.likesummary.service;
 
 import com.api.readinglog.common.exception.ErrorCode;
+import com.api.readinglog.common.exception.custom.MemberException;
 import com.api.readinglog.common.exception.custom.SummaryException;
 import com.api.readinglog.common.redis.service.RedisService;
+import com.api.readinglog.domain.likesummary.entity.LikeSummary;
+import com.api.readinglog.domain.likesummary.repository.LikeSummaryRepository;
+import com.api.readinglog.domain.member.entity.Member;
+import com.api.readinglog.domain.member.repository.MemberRepository;
 import com.api.readinglog.domain.summary.controller.dto.response.SummaryResponse;
 import com.api.readinglog.domain.summary.entity.Summary;
 import com.api.readinglog.domain.summary.repository.SummaryRepository;
@@ -24,6 +29,8 @@ public class LikeSummaryService {
 
     private final RedisService redisService;
     private final SummaryRepository summaryRepository;
+    private final MemberRepository memberRepository;
+    private final LikeSummaryRepository likeSummaryRepository;
 
     // 좋아요 등록
     public void addLikeSummary(Long userId, Long summaryId) {
@@ -37,6 +44,7 @@ public class LikeSummaryService {
             redisService.increaseLikeCount(summaryLikesKey);
 
             updateSummaryLikeCountInDb(summaryId, 1);
+            saveLikeSummaryInDb(userId, summaryId);
         }
     }
 
@@ -52,6 +60,7 @@ public class LikeSummaryService {
             redisService.decreaseLikeCount(summaryLikesKey);
 
             updateSummaryLikeCountInDb(summaryId, -1);
+            removeLikeSummaryInDb(userId, summaryId);
         }
     }
 
@@ -77,6 +86,20 @@ public class LikeSummaryService {
                     Integer likeCount = redisService.getLikeCount(summaryLikesKey);
                     return SummaryResponse.fromEntity(summary, likeCount);
                 }).collect(Collectors.toList());
+    }
+
+    private void saveLikeSummaryInDb(Long userId, Long summaryId) {
+        Member member = memberRepository.findById(userId)
+                .orElseThrow(() -> new MemberException(ErrorCode.NOT_FOUND_MEMBER));
+
+        Summary summary = summaryRepository.findById(summaryId)
+                .orElseThrow(() -> new SummaryException(ErrorCode.NOT_FOUND_SUMMARY));
+
+        likeSummaryRepository.save(LikeSummary.of(member, summary));
+    }
+
+    private void removeLikeSummaryInDb(Long userId, Long summaryId) {
+        likeSummaryRepository.deleteByMemberIdAndSummaryId(userId, summaryId);
     }
 
     // 유저의 좋아요 존재 여부 확인
