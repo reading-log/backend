@@ -48,7 +48,7 @@ public class BookController {
     public Response<BookSearchApiResponse> searchBooks(@RequestParam(required = false) String q,
                                                        @RequestParam(defaultValue = "1") int start) {
         
-        return Response.success(HttpStatus.OK, "책 검색 성공", bookService.searchBooks(q, start));
+        return Response.success(HttpStatus.OK, "책 검색 결과 조회", bookService.searchBooks(q, start));
     }
 
     @Operation(summary = "책 검색 후 등록", description = "검색한 책 정보를 통해 책을 등록합니다.")
