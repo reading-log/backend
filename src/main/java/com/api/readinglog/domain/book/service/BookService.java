@@ -52,7 +52,7 @@ public class BookService {
             throw new BookException(ErrorCode.EMPTY_SEARCH_KEYWORD);
         }
 
-        BookSearchApiResponse response = webClient.get()
+        return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/ItemSearch.aspx")
                         .queryParam("Query", query)
@@ -66,13 +66,6 @@ public class BookService {
                 .retrieve()
                 .bodyToMono(BookSearchApiResponse.class)
                 .block();
-
-
-        if (response == null || response.getTotalResults() == 0) {
-            throw new BookException(ErrorCode.NOT_FOUND_SEARCH);
-        }
-
-        return response;
     }
 
     // 책 자동 등록
