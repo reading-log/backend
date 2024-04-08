@@ -8,7 +8,7 @@ public interface CustomBookRepository {
 
     Long getBookTotalCountInMonth(long memberId, int month);
 
-    List<BookCategoryResponse> getBookCountGroupByCategory(Long memberId, int month);
+    List<BookCategoryResponse> getBookCountGroupByCategoryInMonth(Long memberId, int month);
 
     List<BookCalendarResponse> getBookCalendarInMonth(Long memberId, int month);
 }
