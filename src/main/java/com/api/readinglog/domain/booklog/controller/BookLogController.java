@@ -44,7 +44,7 @@ public class BookLogController {
     @GetMapping("/{bookId}/me")
     public Response<BookLogResponse> myLogs(@AuthenticationPrincipal CustomUserDetail user,
                                             @PathVariable Long bookId) {
-        return Response.success(HttpStatus.OK, "나의 로그 조회 성공", bookLogService.myLogs(user.getId(), bookId));
+        return Response.success(HttpStatus.OK, "나의 로그 조회 성공", bookLogService.bookLogDetails(user.getId(), bookId));
     }
 
     @Operation(summary = "북로그 목록 조회", description = "리딩 로그 서비스의 전체 북로그 목록을 조회합니다. 기본값은 최신순 정렬입니다. 정렬 조건을 추가하면 인기순 정렬이 가능합니다. 비회원도 조회가 가능합니다.")
@@ -54,8 +54,21 @@ public class BookLogController {
             @ApiResponse(responseCode = "404", description = "북로그 목록이 존재하지 않습니다!")
     })
     @GetMapping
-    public Response<SummaryPageResponse> bookLogs(@PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
+    public Response<SummaryPageResponse> bookLogs(
+            @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
         return Response.success(HttpStatus.OK, "북로그 목록 조회 성공", bookLogService.bookLogs(pageable));
+    }
+
+    @Operation(summary = "북로그 상세 조회", description = "북로그 상세 조회입니다. 회원과 책 ID값을 통해 조회할 수 있습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "북로그 상세 조회 성공",
+                    content = {@Content(schema = @Schema(implementation = Response.class))}),
+            @ApiResponse(responseCode = "400", description = "북로그 상세 조회 실패")
+    })
+    @GetMapping("/{bookId}/{memberId}")
+    public Response<BookLogResponse> bookLogsDetails(@PathVariable Long bookId,
+                                                     @PathVariable Long memberId) {
+        return Response.success(HttpStatus.OK, "북로그 상세 조회 성공", bookLogService.bookLogDetails(memberId, bookId));
     }
 
     @Operation(summary = "북로그 책 제목으로 검색", description = "책 제목을 통해 북로그 목록을 조회합니다. 기본값은 최신순 정렬입니다. 정렬 조건을 추가하면 인기순 정렬이 가능합니다. 비회원도 조회가 가능합니다.")

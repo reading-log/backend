@@ -42,9 +42,9 @@ public class BookLogService {
     private final HighlightRepository highlightRepository;
     private final LikeSummaryService likeSummaryService;
 
-    // 나의 로그 조회
+    // 북로그 상세 조회
     @Transactional(readOnly = true)
-    public BookLogResponse myLogs(Long memberId, Long bookId) {
+    public BookLogResponse bookLogDetails(Long memberId, Long bookId) {
         Member member = getMember(memberId);
         Book book = getBook(bookId);
         BookDetailResponse bookDetailResponse = bookService.getBookInfo(memberId, bookId);
@@ -59,7 +59,7 @@ public class BookLogService {
         return BookLogResponse.of(bookDetailResponse, summary, reviews, highlights);
     }
 
-    // 북로그 목록 조회
+    // 북로그 전체 목록 조회
     @Transactional(readOnly = true)
     public SummaryPageResponse bookLogs(Pageable pageable) {
         Slice<Summary> summaries = summaryRepository.findAllBy(pageable);
@@ -75,12 +75,6 @@ public class BookLogService {
                 .collect(Collectors.toList());
 
         return SummaryPageResponse.fromSlice(bookLogs, summaries.hasNext());
-    }
-
-    // TODO: 북로그 상세 조회 (책, 회원, 한줄평, 서평, 하이라이트 모두)
-    @Transactional(readOnly = true)
-    public BookLogResponse bookLogDetails() {
-        return null;
     }
 
     // 책 제목으로 검색
