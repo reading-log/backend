@@ -9,12 +9,14 @@ import lombok.Getter;
 @Builder
 public class MySummaryResponse {
 
+    private String nickname;
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
     public static MySummaryResponse fromEntity(Summary summary) {
         return MySummaryResponse.builder()
+                .nickname(summary.getMember().getNickname())
                 .content(summary.getContent())
                 .createdAt(summary.getCreatedAt())
                 .modifiedAt(summary.getModifiedAt())
