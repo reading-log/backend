@@ -14,18 +14,23 @@ import com.api.readinglog.domain.member.service.MemberService;
 import com.api.readinglog.domain.review.controller.dto.response.ReviewResponse;
 import com.api.readinglog.domain.review.repository.ReviewRepository;
 import com.api.readinglog.domain.summary.controller.dto.response.MySummaryResponse;
+import com.api.readinglog.domain.summary.controller.dto.response.SummaryPageResponse;
 import com.api.readinglog.domain.summary.controller.dto.response.SummaryResponse;
+import com.api.readinglog.domain.summary.entity.Summary;
 import com.api.readinglog.domain.summary.repository.SummaryRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
+@Slf4j
 public class BookLogService {
 
     private final MemberService memberService;
@@ -35,6 +40,7 @@ public class BookLogService {
     private final HighlightRepository highlightRepository;
     private final LikeSummaryService likeSummaryService;
 
+    // 나의 로그 조회
     @Transactional(readOnly = true)
     public BookLogResponse myLogs(Long memberId, Long bookId) {
         Member member = getMember(memberId);
@@ -51,17 +57,28 @@ public class BookLogService {
         return BookLogResponse.of(bookDetailResponse, summary, reviews, highlights);
     }
 
+    // 북로그 목록 조회
     @Transactional(readOnly = true)
-    public Page<SummaryResponse> bookLogs(Pageable pageable) {
-        Page<SummaryResponse> bookLogs = summaryRepository.findAllBy(pageable)
-                .map(summary -> SummaryResponse.fromEntity(summary, likeSummaryService.getSummaryLikeCount(summary.getId())));
+    public SummaryPageResponse bookLogs(Pageable pageable) {
+        Slice<Summary> summaries = summaryRepository.findAllBy(pageable);
 
         // 북로그가 존재하지 않는 경우 예외 처리
-        if (bookLogs.getContent().isEmpty()) {
+        if (summaries.getContent().isEmpty()) {
             throw new SummaryException(ErrorCode.NOT_FOUND_BOOK_LOGS);
         }
 
-        return bookLogs;
+        List<SummaryResponse> bookLogs = summaries.getContent().stream()
+                .map(summary -> SummaryResponse.fromEntity(summary,
+                        likeSummaryService.getSummaryLikeCount(summary.getId())))
+                .collect(Collectors.toList());
+
+        return SummaryPageResponse.fromSlice(bookLogs, summaries.hasNext());
+    }
+
+    // TODO: 북로그 상세 조회 (책, 회원, 한줄평, 서평, 하이라이트 모두)
+    @Transactional(readOnly = true)
+    public BookLogResponse bookLogDetails() {
+        return null;
     }
 
     private Member getMember(Long memberId) {
