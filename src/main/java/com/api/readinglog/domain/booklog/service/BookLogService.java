@@ -6,6 +6,8 @@ import com.api.readinglog.domain.book.dto.BookDetailResponse;
 import com.api.readinglog.domain.book.entity.Book;
 import com.api.readinglog.domain.book.service.BookService;
 import com.api.readinglog.domain.booklog.controller.dto.BookLogResponse;
+import com.api.readinglog.domain.booklog.controller.dto.request.BookLogsSearchByBookTitleRequest;
+import com.api.readinglog.domain.booklog.controller.dto.request.BookLogsSearchByCategoryRequest;
 import com.api.readinglog.domain.highlight.controller.dto.response.HighlightResponse;
 import com.api.readinglog.domain.highlight.repository.HighlightRepository;
 import com.api.readinglog.domain.likesummary.service.LikeSummaryService;
@@ -14,18 +16,23 @@ import com.api.readinglog.domain.member.service.MemberService;
 import com.api.readinglog.domain.review.controller.dto.response.ReviewResponse;
 import com.api.readinglog.domain.review.repository.ReviewRepository;
 import com.api.readinglog.domain.summary.controller.dto.response.MySummaryResponse;
+import com.api.readinglog.domain.summary.controller.dto.response.SummaryPageResponse;
 import com.api.readinglog.domain.summary.controller.dto.response.SummaryResponse;
+import com.api.readinglog.domain.summary.entity.Summary;
 import com.api.readinglog.domain.summary.repository.SummaryRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
+@Slf4j
 public class BookLogService {
 
     private final MemberService memberService;
@@ -35,8 +42,9 @@ public class BookLogService {
     private final HighlightRepository highlightRepository;
     private final LikeSummaryService likeSummaryService;
 
+    // 북로그 상세 조회
     @Transactional(readOnly = true)
-    public BookLogResponse myLogs(Long memberId, Long bookId) {
+    public BookLogResponse bookLogDetails(Long memberId, Long bookId) {
         Member member = getMember(memberId);
         Book book = getBook(bookId);
         BookDetailResponse bookDetailResponse = bookService.getBookInfo(memberId, bookId);
@@ -51,17 +59,59 @@ public class BookLogService {
         return BookLogResponse.of(bookDetailResponse, summary, reviews, highlights);
     }
 
+    // 북로그 전체 목록 조회
     @Transactional(readOnly = true)
-    public Page<SummaryResponse> bookLogs(Pageable pageable) {
-        Page<SummaryResponse> bookLogs = summaryRepository.findAllBy(pageable)
-                .map(summary -> SummaryResponse.fromEntity(summary, likeSummaryService.getSummaryLikeCount(summary.getId())));
+    public SummaryPageResponse bookLogs(Pageable pageable) {
+        Slice<Summary> summaries = summaryRepository.findAllBy(pageable);
 
         // 북로그가 존재하지 않는 경우 예외 처리
-        if (bookLogs.getContent().isEmpty()) {
+        if (summaries.getContent().isEmpty()) {
             throw new SummaryException(ErrorCode.NOT_FOUND_BOOK_LOGS);
         }
 
-        return bookLogs;
+        List<SummaryResponse> bookLogs = summaries.getContent().stream()
+                .map(summary -> SummaryResponse.fromEntity(summary,
+                        likeSummaryService.getSummaryLikeCount(summary.getId())))
+                .collect(Collectors.toList());
+
+        return SummaryPageResponse.fromSlice(bookLogs, summaries.hasNext());
+    }
+
+    // 책 제목으로 검색
+    public SummaryPageResponse findBookLogsByBookTitle(BookLogsSearchByBookTitleRequest request,
+                                                       Pageable pageable) {
+        List<Summary> summaries = summaryRepository.findByBookTitle(request.getBookTitle(), pageable);
+        return createSummaryPageResponse(summaries, pageable);
+    }
+
+    // 카테고리명으로 검색
+    public SummaryPageResponse findBookLogsByCategory(BookLogsSearchByCategoryRequest request,
+                                                      Pageable pageable) {
+        List<Summary> summaries = summaryRepository.findByCategoryName(request.getCategoryName(), pageable);
+        return createSummaryPageResponse(summaries, pageable);
+    }
+
+    private SummaryPageResponse createSummaryPageResponse(List<Summary> summaries, Pageable pageable) {
+        // 북로그가 존재하지 않는 경우 예외 처리
+        if (summaries.isEmpty()) {
+            throw new SummaryException(ErrorCode.NOT_FOUND_BOOK_LOGS);
+        }
+
+        List<SummaryResponse> content = buildSummaryResponse(summaries);
+
+        // 마지막 페이지 여부 판별
+        boolean hasNext = content.size() > pageable.getPageSize();
+        if (hasNext) {
+            content = content.subList(0, pageable.getPageSize());
+        }
+        return SummaryPageResponse.fromSlice(content, hasNext);
+    }
+
+    private List<SummaryResponse> buildSummaryResponse(List<Summary> summaries) {
+        return summaries.stream()
+                .map(summary -> SummaryResponse.fromEntity(summary,
+                        likeSummaryService.getSummaryLikeCount(summary.getId())))
+                .collect(Collectors.toList());
     }
 
     private Member getMember(Long memberId) {
