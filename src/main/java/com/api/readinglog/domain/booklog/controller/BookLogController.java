@@ -3,6 +3,8 @@ package com.api.readinglog.domain.booklog.controller;
 import com.api.readinglog.common.response.Response;
 import com.api.readinglog.common.security.CustomUserDetail;
 import com.api.readinglog.domain.booklog.controller.dto.BookLogResponse;
+import com.api.readinglog.domain.booklog.controller.dto.request.BookLogsSearchByBookTitleRequest;
+import com.api.readinglog.domain.booklog.controller.dto.request.BookLogsSearchByCategoryRequest;
 import com.api.readinglog.domain.booklog.service.BookLogService;
 import com.api.readinglog.domain.summary.controller.dto.response.SummaryPageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -55,4 +58,29 @@ public class BookLogController {
         return Response.success(HttpStatus.OK, "북로그 목록 조회 성공", bookLogService.bookLogs(pageable));
     }
 
+    @Operation(summary = "북로그 책 제목으로 검색", description = "책 제목을 통해 북로그 목록을 조회합니다. 기본값은 최신순 정렬입니다. 정렬 조건을 추가하면 인기순 정렬이 가능합니다. 비회원도 조회가 가능합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "북로그 책 제목 검색 성공",
+                    content = {@Content(schema = @Schema(implementation = Response.class))}),
+            @ApiResponse(responseCode = "404", description = "북로그 목록이 존재하지 않습니다!")
+    })
+    @GetMapping("/search/title")
+    public Response<SummaryPageResponse> findBookLogsByBookTitle(@RequestBody BookLogsSearchByBookTitleRequest request,
+                                                                 @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
+        return Response.success(HttpStatus.OK, "북로그 책 제목 검색 성공",
+                bookLogService.findBookLogsByBookTitle(request, pageable));
+    }
+
+    @Operation(summary = "북로그 책 카테고리명으로 검색", description = "책 카테고리명을 통해 북로그 목록을 조회합니다. 기본값은 최신순 정렬입니다. 정렬 조건을 추가하면 인기순 정렬이 가능합니다. 비회원도 조회가 가능합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "북로그 책 카테고리명 검색 성공",
+                    content = {@Content(schema = @Schema(implementation = Response.class))}),
+            @ApiResponse(responseCode = "404", description = "북로그 목록이 존재하지 않습니다!")
+    })
+    @GetMapping("/search/category")
+    public Response<SummaryPageResponse> findBookLogsByCategory(@RequestBody BookLogsSearchByCategoryRequest request,
+                                                                @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
+        return Response.success(HttpStatus.OK, "북로그 책 카테고리명 검색 성공",
+                bookLogService.findBookLogsByCategory(request, pageable));
+    }
 }

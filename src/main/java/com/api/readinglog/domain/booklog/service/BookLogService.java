@@ -6,6 +6,8 @@ import com.api.readinglog.domain.book.dto.BookDetailResponse;
 import com.api.readinglog.domain.book.entity.Book;
 import com.api.readinglog.domain.book.service.BookService;
 import com.api.readinglog.domain.booklog.controller.dto.BookLogResponse;
+import com.api.readinglog.domain.booklog.controller.dto.request.BookLogsSearchByBookTitleRequest;
+import com.api.readinglog.domain.booklog.controller.dto.request.BookLogsSearchByCategoryRequest;
 import com.api.readinglog.domain.highlight.controller.dto.response.HighlightResponse;
 import com.api.readinglog.domain.highlight.repository.HighlightRepository;
 import com.api.readinglog.domain.likesummary.service.LikeSummaryService;
@@ -79,6 +81,43 @@ public class BookLogService {
     @Transactional(readOnly = true)
     public BookLogResponse bookLogDetails() {
         return null;
+    }
+
+    // 책 제목으로 검색
+    public SummaryPageResponse findBookLogsByBookTitle(BookLogsSearchByBookTitleRequest request,
+                                                       Pageable pageable) {
+        List<Summary> summaries = summaryRepository.findByBookTitle(request.getBookTitle(), pageable);
+        return createSummaryPageResponse(summaries, pageable);
+    }
+
+    // 카테고리명으로 검색
+    public SummaryPageResponse findBookLogsByCategory(BookLogsSearchByCategoryRequest request,
+                                                      Pageable pageable) {
+        List<Summary> summaries = summaryRepository.findByCategoryName(request.getCategoryName(), pageable);
+        return createSummaryPageResponse(summaries, pageable);
+    }
+
+    private SummaryPageResponse createSummaryPageResponse(List<Summary> summaries, Pageable pageable) {
+        // 북로그가 존재하지 않는 경우 예외 처리
+        if (summaries.isEmpty()) {
+            throw new SummaryException(ErrorCode.NOT_FOUND_BOOK_LOGS);
+        }
+
+        List<SummaryResponse> content = buildSummaryResponse(summaries);
+
+        // 마지막 페이지 여부 판별
+        boolean hasNext = content.size() > pageable.getPageSize();
+        if (hasNext) {
+            content = content.subList(0, pageable.getPageSize());
+        }
+        return SummaryPageResponse.fromSlice(content, hasNext);
+    }
+
+    private List<SummaryResponse> buildSummaryResponse(List<Summary> summaries) {
+        return summaries.stream()
+                .map(summary -> SummaryResponse.fromEntity(summary,
+                        likeSummaryService.getSummaryLikeCount(summary.getId())))
+                .collect(Collectors.toList());
     }
 
     private Member getMember(Long memberId) {

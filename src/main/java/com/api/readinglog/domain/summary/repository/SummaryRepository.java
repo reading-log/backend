@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface SummaryRepository extends JpaRepository<Summary, Long> {
+public interface SummaryRepository extends JpaRepository<Summary, Long>, CustomSummaryRepository {
 
     Optional<Summary> findByMemberAndBook(Member member, Book book);
 
