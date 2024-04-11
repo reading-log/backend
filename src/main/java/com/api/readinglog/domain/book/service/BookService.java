@@ -10,6 +10,7 @@ import com.api.readinglog.domain.book.dto.BookDetailResponse;
 import com.api.readinglog.domain.book.dto.BookDirectRequest;
 import com.api.readinglog.domain.book.dto.BookModifyRequest;
 import com.api.readinglog.domain.book.dto.BookRegisterRequest;
+import com.api.readinglog.domain.book.dto.BookResponse;
 import com.api.readinglog.domain.book.dto.BookSearchApiResponse;
 import com.api.readinglog.domain.book.entity.Book;
 import com.api.readinglog.domain.book.repository.BookRepository;
@@ -17,6 +18,8 @@ import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -31,6 +34,12 @@ public class BookService {
     private final BookRepository bookRepository;
     private final MemberService memberService;
     private final AmazonS3Service amazonS3Service;
+
+    @Transactional(readOnly = true)
+    public Page<BookResponse> myBookList(Long memberId, String keyword, Pageable pageable) {
+        Member member = memberService.getMemberById(memberId);
+        return bookRepository.myBookList(memberId, keyword, pageable);
+    }
 
     @Transactional(readOnly = true)
     public BookDetailResponse getBookInfo(Long memberId, Long bookId) {
@@ -111,4 +120,5 @@ public class BookService {
     public Book getBookById(Long bookId) {
         return bookRepository.findById(bookId).orElseThrow(() -> new BookException(ErrorCode.NOT_FOUND_BOOK));
     }
+
 }
