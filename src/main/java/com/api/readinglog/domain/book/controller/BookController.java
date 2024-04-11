@@ -43,6 +43,7 @@ public class BookController {
 
     private final BookService bookService;
 
+    @Operation(summary = "내가 등록한 책 목록 조회", description = "사용자가 등록한 책 목록을 조회합니다.")
     @GetMapping("/me")
     public Response<Page<BookResponse>> myBookList(@AuthenticationPrincipal CustomUserDetail user,
                                      @RequestParam(required = false) String keyword,
