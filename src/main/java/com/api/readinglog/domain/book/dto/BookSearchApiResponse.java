@@ -10,8 +10,10 @@ import lombok.Setter;
 public class BookSearchApiResponse {
 
     private int totalResults; // 전체 데이터 개수
-    private int startIndex; // 시작 페이지
     private int itemsPerPage; // 페이지당 아이템 개수
+    private int totalPage; // 전체 페이지수
+    private int startIndex; // 시작 페이지
+    private boolean hasNext; // 다음 페이지 존재 여부
     private String query; // 검색어
 
     private List<Item> item = new ArrayList<>();

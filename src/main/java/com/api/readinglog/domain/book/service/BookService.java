@@ -61,7 +61,7 @@ public class BookService {
             throw new BookException(ErrorCode.EMPTY_SEARCH_KEYWORD);
         }
 
-        return webClient.get()
+        BookSearchApiResponse response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/ItemSearch.aspx")
                         .queryParam("Query", query)
@@ -75,6 +75,20 @@ public class BookService {
                 .retrieve()
                 .bodyToMono(BookSearchApiResponse.class)
                 .block();
+
+        // 다음 페이지 존재 여부
+        int totalResults = response.getTotalResults();
+        int itemsPerPage = response.getItemsPerPage();
+        int totalPage = totalResults / itemsPerPage == 0 ? totalResults / itemsPerPage : (totalResults / itemsPerPage) + 1;
+        int startIndex = response.getStartIndex(); // 현재 페이지
+
+        // 현재 페이지가 전체 페이지보다 작으면 다음 페이지 존재
+        if (startIndex < totalPage) {
+            response.setHasNext(true);
+        }
+        response.setTotalPage(totalPage);
+
+        return response;
     }
 
     // 책 자동 등록
