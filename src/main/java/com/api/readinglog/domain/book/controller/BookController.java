@@ -1,10 +1,13 @@
 package com.api.readinglog.domain.book.controller;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 import com.api.readinglog.common.response.Response;
 import com.api.readinglog.common.security.CustomUserDetail;
 import com.api.readinglog.domain.book.dto.BookDetailResponse;
 import com.api.readinglog.domain.book.dto.BookDirectRequest;
 import com.api.readinglog.domain.book.dto.BookRegisterRequest;
+import com.api.readinglog.domain.book.dto.BookResponse;
 import com.api.readinglog.domain.book.dto.BookSearchApiResponse;
 import com.api.readinglog.domain.book.dto.BookModifyRequest;
 import com.api.readinglog.domain.book.service.BookService;
@@ -13,6 +16,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,6 +42,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class BookController {
 
     private final BookService bookService;
+
+    @GetMapping("/me")
+    public Response<Page<BookResponse>> myBookList(@AuthenticationPrincipal CustomUserDetail user,
+                                     @RequestParam(required = false) String keyword,
+                                     @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable) {
+
+        Page<BookResponse> response = bookService.myBookList(user.getId(), keyword, pageable);
+        return Response.success(HttpStatus.OK, "내가 등록한 책 목록 조회 성공", response);
+    }
 
     @Operation(summary = "등록한 책 조회", description = "사용자가 등록한 책 정보를 조회합니다.")
     @GetMapping("/{bookId}")
