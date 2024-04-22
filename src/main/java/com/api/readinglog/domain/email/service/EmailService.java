@@ -2,8 +2,10 @@ package com.api.readinglog.domain.email.service;
 
 import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.EmailException;
+import com.api.readinglog.common.exception.custom.MemberException;
 import com.api.readinglog.common.redis.service.RedisService;
 import com.api.readinglog.domain.member.entity.Member;
+import com.api.readinglog.domain.member.entity.MemberRole;
 import com.api.readinglog.domain.member.service.MemberService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -43,11 +45,11 @@ public class EmailService {
     }
 
     @Async
-    public void sendTemporaryPassword(Long memberId, String toEmail) {
+    public void sendTemporaryPassword(String toEmail) {
         String tempPassword = createRandomCode();
         sendEmail(toEmail, tempPassword, "[리딩 로그] 임시 비밀번호", "tempPassword.html");
 
-        Member member = memberService.getMemberById(memberId);
+        Member member = memberService.getMemberByEmailAndRole(toEmail, MemberRole.MEMBER_NORMAL);
         member.updatePassword(passwordEncoder.encode(tempPassword));
     }
 
@@ -67,10 +69,16 @@ public class EmailService {
         }
     }
 
-    public void verifyAuthCode(String email, String authCode) {
+    public void validateAuthCode(String email, String authCode) {
         findByEmailAndAuthCode(authCode)
                 .filter(e -> e.equals(email))
                 .orElseThrow(() -> new EmailException(ErrorCode.INVALID_AUTH_CODE));
+    }
+
+    public void validateMember(String email) {
+        if (!isMemberExists(email)) {
+            throw new EmailException(ErrorCode.NOT_FOUND_MEMBER);
+        }
     }
 
     // 인증번호 및 임시 비밀번호 생성
@@ -107,6 +115,10 @@ public class EmailService {
     private Optional<String> findByEmailAndAuthCode(String authCode) {
         Object email = redisService.getData(authCode);
         return Optional.ofNullable(email != null ? email.toString() : null);
+    }
+
+    private boolean isMemberExists(String email) {
+        return (memberService.getMemberByEmailAndRole(email, MemberRole.MEMBER_NORMAL)) != null;
     }
 }
 

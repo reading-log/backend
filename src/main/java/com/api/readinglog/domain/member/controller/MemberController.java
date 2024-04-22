@@ -198,13 +198,15 @@ public class MemberController {
         return Response.success(HttpStatus.OK, "비밀번호 변경 성공");
     }
 
-    @Operation(summary = "이메일 인증 코드 전송", description = "사용자 이메일로 인증 코드를 전송합니다.")
+    @Operation(summary = "이메일 인증 코드 전송", description = "사용자 이메일로 인증 코드를 전송합니다. 회원 존재 유무도 함께 검사합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이메일 인증 코드 전송 완료",
                     content = {@Content(schema = @Schema(implementation = Response.class))})
     })
     @PostMapping("/send-authCode")
     public Response<Void> sendEmailAuthCode(@RequestBody @Valid EmailRequest request) {
+        // 회원 인증 후 인증 코드 전송
+        emailService.validateMember(request.getEmail());
         emailService.sendAuthCode(request.getEmail());
         return Response.success(HttpStatus.OK, "이메일 인증 코드 전송 완료");
     }
@@ -217,7 +219,7 @@ public class MemberController {
     })
     @PostMapping("/verify-authCode")
     public Response<Void> verifyAuthCode(@RequestBody @Valid AuthCodeVerificationRequest request) {
-        emailService.verifyAuthCode(request.getEmail(), request.getAuthCode());
+        emailService.validateAuthCode(request.getEmail(), request.getAuthCode());
         return Response.success(HttpStatus.OK, "이메일 인증 성공");
     }
 
@@ -227,9 +229,8 @@ public class MemberController {
                     content = {@Content(schema = @Schema(implementation = Response.class))})
     })
     @PostMapping("/send-temporaryPassword")
-    public Response<Void> sendEmailTempPassword(@AuthenticationPrincipal CustomUserDetail user,
-                                                @RequestBody @Valid EmailRequest request) {
-        emailService.sendTemporaryPassword(user.getId(), request.getEmail());
+    public Response<Void> sendEmailTempPassword(@RequestBody @Valid EmailRequest request) {
+        emailService.sendTemporaryPassword(request.getEmail());
         return Response.success(HttpStatus.OK, "임시 비밀번호 전송 완료");
     }
 
