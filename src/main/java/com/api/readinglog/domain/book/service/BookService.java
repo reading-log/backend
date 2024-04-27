@@ -50,8 +50,7 @@ public class BookService {
             throw new MemberException(ErrorCode.NOT_MATCH_MEMBER);
         }
 
-        String coverImgUrl = amazonS3Service.getFileUrl(book.getCover());
-        return BookDetailResponse.fromEntity(book, coverImgUrl);
+        return BookDetailResponse.fromEntity(book);
     }
 
     @Transactional(readOnly = true)
@@ -110,10 +109,14 @@ public class BookService {
         Book book = getBookById(bookId);
 
         String cover = book.getCover();
+        log.debug("cover: {}", cover);
+
+        String coverImageUrl = cover.split("amazonaws.com/")[1];
+        log.debug("coverImageUrl: {}", coverImageUrl);
 
         // 파일이 존재하면 기존 이미지 삭제 후 새로운 이미지 업로드
         if (ImageUtil.isNotEmptyImageFile(bookModifyRequest.getCover())) {
-            amazonS3Service.deleteFile(cover);
+            amazonS3Service.deleteFile(coverImageUrl);
             cover = amazonS3Service.uploadFile(bookModifyRequest.getCover(), DomainType.BOOK);
         }
 

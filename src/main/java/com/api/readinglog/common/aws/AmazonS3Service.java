@@ -45,7 +45,7 @@ public class AmazonS3Service {
             metadata.setContentType(file.getContentType());
 
             uploadToS3(bucket, imageFilePath, file, metadata);
-            return imageFilePath;
+            return getFileUrl(imageFilePath);
 
         } catch (IOException e) {
             throw new AwsS3Exception(ErrorCode.AWS_S3_FILE_UPLOAD_FAIL);
