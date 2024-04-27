@@ -20,13 +20,13 @@ public class BookDetailResponse {
 
     private String cover;
 
-    public static BookDetailResponse fromEntity(Book book, String cover) {
+    public static BookDetailResponse fromEntity(Book book) {
         return BookDetailResponse.builder()
                 .title(book.getTitle())
                 .author(book.getAuthor())
                 .publisher(book.getPublisher())
                 .category(book.getCategory())
-                .cover(cover)
+                .cover(book.getCover())
                 .build();
     }
 
