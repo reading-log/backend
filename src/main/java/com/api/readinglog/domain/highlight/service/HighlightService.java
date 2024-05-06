@@ -35,11 +35,6 @@ public class HighlightService {
                 .map(HighlightResponse::fromEntity)
                 .toList();
 
-        // 하이라이트가 존재하지 않는 경우 예외 처리
-        if(highlights.isEmpty()) {
-            throw new HighlightException(ErrorCode.NOT_FOUND_HIGHLIGHT);
-        }
-
         return highlights;
     }
 

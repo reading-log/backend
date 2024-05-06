@@ -46,6 +46,7 @@ public enum ErrorCode {
     MEMBER_ALREADY_EXISTS("이미 존재하는 회원입니다.", HttpStatus.CONFLICT),
     NICKNAME_ALREADY_EXISTS("이미 존재하는 닉네임입니다.", HttpStatus.CONFLICT),
     SUMMARY_ALREADY_EXISTS("한줄평이 이미 존재합니다.", HttpStatus.CONFLICT),
+    REVIEW_ALREADY_EXISTS("서평이 이미 존재합니다.", HttpStatus.CONFLICT),
 
     // 500
     INTERNAL_SERVER_ERROR("서버 에러 발생!", HttpStatus.INTERNAL_SERVER_ERROR),

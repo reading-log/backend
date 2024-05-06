@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 public class MySummaryResponse {
 
+    private Long id;
     private String nickname;
     private String content;
     private LocalDateTime createdAt;
@@ -16,6 +17,7 @@ public class MySummaryResponse {
 
     public static MySummaryResponse fromEntity(Summary summary) {
         return MySummaryResponse.builder()
+                .id(summary.getId())
                 .nickname(summary.getMember().getNickname())
                 .content(summary.getContent())
                 .createdAt(summary.getCreatedAt())

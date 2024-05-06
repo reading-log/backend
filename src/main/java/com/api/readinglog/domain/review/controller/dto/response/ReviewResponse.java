@@ -10,11 +10,13 @@ import lombok.Getter;
 @Builder
 public class ReviewResponse {
 
+    private Long id;
     private String content;
     private LocalDateTime createdAt;
 
     public static ReviewResponse fromEntity(Review review) {
         return ReviewResponse.builder()
+                .id(review.getId())
                 .content(review.getContent())
                 .createdAt(review.getCreatedAt())
                 .build();
