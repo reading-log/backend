@@ -9,7 +9,6 @@ import com.api.readinglog.domain.member.service.MemberService;
 import com.api.readinglog.domain.summary.controller.dto.request.ModifyRequest;
 import com.api.readinglog.domain.summary.controller.dto.request.WriteRequest;
 import com.api.readinglog.domain.summary.controller.dto.response.MySummaryResponse;
-import com.api.readinglog.domain.summary.controller.dto.response.SummaryResponse;
 import com.api.readinglog.domain.summary.entity.Summary;
 import com.api.readinglog.domain.summary.repository.SummaryRepository;
 import java.util.List;
@@ -35,10 +34,6 @@ public class SummaryService {
                 .stream()
                 .map(MySummaryResponse::fromEntity)
                 .toList();
-
-        if(summaries.isEmpty()) {
-            throw new SummaryException(ErrorCode.NOT_FOUND_SUMMARY);
-        }
 
         return summaries;
     }

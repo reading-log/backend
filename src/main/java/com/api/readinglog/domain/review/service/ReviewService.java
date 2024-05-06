@@ -2,6 +2,7 @@ package com.api.readinglog.domain.review.service;
 
 import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.ReviewException;
+import com.api.readinglog.common.exception.custom.SummaryException;
 import com.api.readinglog.domain.book.entity.Book;
 import com.api.readinglog.domain.book.service.BookService;
 import com.api.readinglog.domain.member.entity.Member;
@@ -35,16 +36,17 @@ public class ReviewService {
                 .map(ReviewResponse::fromEntity)
                 .toList();
 
-        if (reviews.isEmpty()) {
-            throw new ReviewException(ErrorCode.NOT_FOUND_REVIEW);
-        }
-
         return reviews;
     }
 
     public void write(Long memberId, Long bookId, WriteRequest request) {
         Member member = memberService.getMemberById(memberId);
         Book book = bookService.getBookById(bookId);
+
+        // 해당 책에 대한 서평이 존재하는 경우 예외 처리
+        reviewRepository.findByMemberAndBook(member, book).ifPresent(it -> {
+            throw new ReviewException(ErrorCode.REVIEW_ALREADY_EXISTS);
+        });
 
         Review review = reviewRepository.save(Review.of(member, book, request));
         book.getReviewList().add(review);
