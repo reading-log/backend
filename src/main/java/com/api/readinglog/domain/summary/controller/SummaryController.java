@@ -5,14 +5,17 @@ import com.api.readinglog.common.security.CustomUserDetail;
 import com.api.readinglog.domain.likesummary.service.LikeSummaryService;
 import com.api.readinglog.domain.summary.controller.dto.request.ModifyRequest;
 import com.api.readinglog.domain.summary.controller.dto.request.WriteRequest;
+import com.api.readinglog.domain.summary.controller.dto.response.MySummaryResponse;
 import com.api.readinglog.domain.summary.service.SummaryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +31,15 @@ public class SummaryController {
 
     private final SummaryService summaryService;
     private final LikeSummaryService likeSummaryService;
+
+    @Operation(summary = "내가 작성한 한줄평 목록 조회", description = "특정 책에 등록한 한줄평 목록을 조회합니다.")
+    @GetMapping("/{bookId}/me")
+    public Response<List<MySummaryResponse>> summaries(@AuthenticationPrincipal CustomUserDetail user,
+                                                       @PathVariable Long bookId) {
+        List<MySummaryResponse> response = summaryService.summaries(user.getId(), bookId);
+        return Response.success(HttpStatus.OK, "내가 쓴 한줄평 목록 조회 성공", response);
+    }
+
 
     @Operation(summary = "한줄평 작성", description = "특정 책에 한줄평을 등록합니다.")
     @PostMapping("/{bookId}")

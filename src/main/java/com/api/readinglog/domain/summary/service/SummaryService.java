@@ -8,8 +8,10 @@ import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.service.MemberService;
 import com.api.readinglog.domain.summary.controller.dto.request.ModifyRequest;
 import com.api.readinglog.domain.summary.controller.dto.request.WriteRequest;
+import com.api.readinglog.domain.summary.controller.dto.response.MySummaryResponse;
 import com.api.readinglog.domain.summary.entity.Summary;
 import com.api.readinglog.domain.summary.repository.SummaryRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,19 @@ public class SummaryService {
     private final SummaryRepository summaryRepository;
     private final MemberService memberService;
     private final BookService bookService;
+
+    @Transactional(readOnly = true)
+    public List<MySummaryResponse> summaries(Long memberId, Long bookId) {
+        Member member = memberService.getMemberById(memberId);
+        Book book = bookService.getBookById(bookId);
+
+        List<MySummaryResponse> summaries = summaryRepository.findByMemberAndBook(member,book)
+                .stream()
+                .map(MySummaryResponse::fromEntity)
+                .toList();
+
+        return summaries;
+    }
 
     public void write(Long memberId, Long bookId, WriteRequest request) {
         Member member = memberService.getMemberById(memberId);

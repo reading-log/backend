@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 public class SummaryResponse {
 
+    private Long id;
     private Long memberId;
     private String nickname;
     private Long bookId;
@@ -21,6 +22,7 @@ public class SummaryResponse {
 
     public static SummaryResponse fromEntity(Summary summary, int likeCount) {
         return SummaryResponse.builder()
+                .id(summary.getId())
                 .memberId(summary.getMember().getId())
                 .nickname(summary.getMember().getNickname())
                 .bookId(summary.getBook().getId())
