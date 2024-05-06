@@ -9,12 +9,14 @@ import lombok.Getter;
 @Builder
 public class HighlightResponse {
 
+    private Long id;
     private String content;
     private Integer page;
     private LocalDateTime createdAt;
 
     public static HighlightResponse fromEntity(Highlight highlight) {
         return HighlightResponse.builder()
+                .id(highlight.getId())
                 .content(highlight.getContent())
                 .page(highlight.getPage())
                 .createdAt(highlight.getCreatedAt())
