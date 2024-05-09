@@ -2,7 +2,6 @@ package com.api.readinglog.domain.email.service;
 
 import com.api.readinglog.common.exception.ErrorCode;
 import com.api.readinglog.common.exception.custom.EmailException;
-import com.api.readinglog.common.exception.custom.MemberException;
 import com.api.readinglog.common.redis.service.RedisService;
 import com.api.readinglog.domain.member.entity.Member;
 import com.api.readinglog.domain.member.entity.MemberRole;
@@ -11,9 +10,11 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -39,22 +40,23 @@ public class EmailService {
 
     @Async
     public void sendAuthCode(String toEmail) {
-        String authCode = createRandomCode();
+        String authCode = generateRandomCode();
         saveAuthCode(toEmail, authCode);
         sendEmail(toEmail, authCode, "[리딩 로그] 이메일 인증 코드", "authCode.html");
     }
 
     @Async
-    public void sendTemporaryPassword(String toEmail) {
-        String tempPassword = createRandomCode();
-        sendEmail(toEmail, tempPassword, "[리딩 로그] 임시 비밀번호", "tempPassword.html");
-
-        Member member = memberService.getMemberByEmailAndRole(toEmail, MemberRole.MEMBER_NORMAL);
-        member.updatePassword(passwordEncoder.encode(tempPassword));
+    public void sendTemporaryPassword(String toEmail, String tempPassword) {
+        sendEmail(toEmail, tempPassword, "[리딩 로그] 임시 비밀번호", "tempPassword.html")
+                .thenRun(() -> log.info("{}에 임시 비밀번호 이메일 전송 성공", toEmail))
+                .exceptionally(ex -> {
+                    log.error("{} 이메일 전송 실패: ", toEmail, ex);
+                    return null;
+                });
     }
 
     @Async
-    public void sendEmail(String toEmail, String code, String subject, String templateName) {
+    public CompletableFuture<Void> sendEmail(String toEmail, String code, String subject, String templateName) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
@@ -63,10 +65,21 @@ public class EmailService {
             messageHelper.setText(setContext(code, templateName), true);
 
             javaMailSender.send(mimeMessage);
+            return CompletableFuture.completedFuture(null);
 
-        } catch (MessagingException e) {
-            throw new EmailException(ErrorCode.EMAIL_SEND_FAILED);
+        } catch (MailException | MessagingException e) {
+            log.error("이메일 전송 중 예외 발생", e);
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            future.completeExceptionally(e);
+            return future;
         }
+    }
+
+    public String updatePassword(String email) {
+        String tempPassword = generateRandomCode();
+        Member member = memberService.getMemberByEmailAndRole(email, MemberRole.MEMBER_NORMAL);
+        member.updatePassword(passwordEncoder.encode(tempPassword));
+        return tempPassword;
     }
 
     public void validateAuthCode(String email, String authCode) {
@@ -82,7 +95,7 @@ public class EmailService {
     }
 
     // 인증번호 및 임시 비밀번호 생성
-    private String createRandomCode() {
+    private String generateRandomCode() {
         Random random = new Random();
         StringBuilder key = new StringBuilder();
         for (int i = 0; i < 8; i++) {

@@ -230,7 +230,9 @@ public class MemberController {
     })
     @PostMapping("/send-temporaryPassword")
     public Response<Void> sendEmailTempPassword(@RequestBody @Valid EmailRequest request) {
-        emailService.sendTemporaryPassword(request.getEmail());
+        // 비밀번호 변경 후 비동기로 이메일 전송
+        String newPassword = emailService.updatePassword(request.getEmail());
+        emailService.sendTemporaryPassword(request.getEmail(), newPassword);
         return Response.success(HttpStatus.OK, "임시 비밀번호 전송 완료");
     }
 
