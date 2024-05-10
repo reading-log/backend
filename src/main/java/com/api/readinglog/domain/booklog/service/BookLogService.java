@@ -64,11 +64,6 @@ public class BookLogService {
     public SummaryPageResponse bookLogs(Pageable pageable) {
         Slice<Summary> summaries = summaryRepository.findAllBy(pageable);
 
-        // 북로그가 존재하지 않는 경우 예외 처리
-        if (summaries.getContent().isEmpty()) {
-            throw new SummaryException(ErrorCode.NOT_FOUND_BOOK_LOGS);
-        }
-
         List<SummaryResponse> bookLogs = summaries.getContent().stream()
                 .map(summary -> SummaryResponse.fromEntity(summary,
                         likeSummaryService.getSummaryLikeCount(summary.getId())))
